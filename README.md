@@ -88,5 +88,7 @@ Before production multi-tenant use, add authentication and authorization, rate l
 ## Editable news navigation
 
 - Add and remove up to 12 custom news categories in the studio; duplicate names are blocked in the interface and empty names are ignored.
+- Edit the homepage lead headline, short introduction, and breaking-news ticker text; these values update the preview and are included in exported JSON configuration.
+- Validate and normalize homepage copy server-side, with character limits of 160 for headlines, 240 for descriptions, and 180 for ticker text.
 - Category names are normalized and length-limited by the server before they enter the generated JSON configuration.
 - The first six configured categories appear in the visual navigation preview, and the same category list is included when exporting the configuration.
