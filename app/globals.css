@@ -192,3 +192,49 @@ button,.template-option,.wp-publish,.wp-test,.download-button{transition:backgro
 
 .project-verify-domain{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:9px;padding:9px 11px;border:1px solid #d8e2dc;border-radius:9px;background:#f5faf7;color:#315343;font-size:12px;font-weight:700;cursor:pointer}
 .project-verify-domain:disabled{opacity:.6;cursor:wait}
+
+
+/* Guided builder UX polish — original NewsForge styling, inspired by clear website-builder flows */
+.steps{position:relative;box-shadow:0 8px 24px rgba(25,48,37,.035)}
+.steps .step{appearance:none;flex:0 1 auto;border:0;background:transparent;padding:0;color:inherit;text-align:left;font:inherit;cursor:pointer;border-radius:9px;transition:background .18s ease,transform .18s ease}
+.steps .step:hover{background:#f5faf6}
+.steps .step:focus-visible{outline:3px solid #9bd4b3;outline-offset:4px}
+.steps .step.current b{color:#146b49}
+.steps .step.current small{color:#6f8979}
+#brand-settings,#template-library,#live-preview,#wordpress-connection{scroll-margin-top:22px}
+.page-heading{gap:20px}
+.page-heading h1{max-width:720px}
+.page-heading p{max-width:680px;line-height:1.7}
+.panel{transition:border-color .18s ease,box-shadow .18s ease}
+.panel:focus-within{border-color:#d7e8dc}
+.text-input,.select-wrap select,.category-add input,.template-search input{transition:border-color .18s ease,box-shadow .18s ease}
+.text-input:focus-visible,.select-wrap select:focus-visible,.category-add input:focus-visible,.template-search input:focus-within{outline:none;border-color:#65ad83;box-shadow:0 0 0 3px rgba(22,132,91,.11)}
+.template-option:focus-visible,.preview-footer button:focus-visible,.generate-button:focus-visible,.side-link:focus-visible{outline:3px solid #9bd4b3;outline-offset:3px}
+.template-option{min-height:61px}
+.generate-button{min-height:50px;border-radius:11px;transition:background .18s ease,transform .18s ease,box-shadow .18s ease}
+.generate-button:hover:not(:disabled){box-shadow:0 9px 22px rgba(22,132,91,.2)}
+.preview-column{box-shadow:0 14px 40px rgba(25,48,37,.055)}
+.generated-card{align-items:flex-start}
+.wordpress-card{scroll-margin-top:20px}
+@media(max-width:850px){
+  .steps{position:relative;top:auto}
+  .steps .step{flex:1;min-width:0}
+  .builder-grid{gap:16px}
+  .preview-column{box-shadow:0 8px 24px rgba(25,48,37,.045)}
+}
+@media(max-width:520px){
+  .steps{gap:5px;padding:12px 8px}
+  .steps .step{gap:5px;padding:3px}
+  .steps .step>div{min-width:0}
+  .steps .step b{font-size:9px}
+  .steps .step small{font-size:8px;line-height:1.25}
+  .step-line{max-width:12px}
+  .page-heading{align-items:flex-start;margin-bottom:20px}
+  .page-heading h1{max-width:100%;line-height:1.2}
+  .panel{border-radius:14px}
+  .preview-header{gap:8px;align-items:flex-start}
+  .preview-size{white-space:nowrap}
+}
+@media(prefers-reduced-motion:reduce){
+  .steps .step,.panel,.text-input,.select-wrap select,.category-add input,.template-search input,.template-option,.generate-button{transition:none}
+}
