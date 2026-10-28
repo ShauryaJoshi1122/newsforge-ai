@@ -49,7 +49,7 @@ export default function Home() {
     setError("");
     try {
       // Rebuild from the current form state so edits made after generation are never exported stale.
-      const response = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled})});
+      const response = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled,categories})});
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Could not refresh the website configuration.");
       const freshConfig = data.config as Config;
