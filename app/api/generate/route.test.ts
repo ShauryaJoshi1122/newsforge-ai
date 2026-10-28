@@ -39,6 +39,16 @@ describe("POST /api/generate", () => {
     expect(Number.isNaN(Date.parse(body.config.generatedAt))).toBe(false);
   });
 
+  it("keeps sanitized custom categories in the generated configuration", async () => {
+    const response = await POST(request({
+      siteName: "Regional Daily", templateId: "regional-connect",
+      categories: ["  Gujarat  ", "Education News", "", 42, "Education News", "A".repeat(40)]
+    }));
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.config.categories).toEqual(["Gujarat", "Education News", "A".repeat(24)]);
+  });
+
   it("falls back to safe defaults for unsupported language and color", async () => {
     const response = await POST(request({
       siteName: "Regional Daily", language: "xx", templateId: "regional-connect", primaryColor: "red"
