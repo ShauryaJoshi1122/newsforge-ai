@@ -29,7 +29,7 @@ export default function Home() {
     setGenerating(true); setError(""); setNotice("");
     try {
       const response = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled})});
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Could not generate configuration.");
       setConfig(data.config); setNotice("Your website configuration is ready. Preview it, then export the setup file.");
     } catch(e) { setError(e instanceof Error ? e.message : "Something went wrong."); }
@@ -40,13 +40,13 @@ export default function Home() {
     const blob = new Blob([JSON.stringify(config,null,2)],{type:"application/json"});
     const url = URL.createObjectURL(blob); const a = document.createElement("a");
     a.href=url; a.download=(siteName.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "newsforge-site")+"-config.json";
-    a.click(); URL.revokeObjectURL(url);
+    a.click(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   async function testWordPress() {
     setWpBusy(true); setWpResult(""); setError("");
     try {
       const response = await fetch("/api/wordpress",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteUrl:wpUrl,username:wpUser,appPassword:wpPassword})});
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Connection failed.");
       setWpResult("Connected successfully as " + (data.user?.name || data.user?.slug || wpUser) + ". No content was changed.");
       setWpPassword("");
@@ -78,7 +78,7 @@ export default function Home() {
               <div className="feature-list">{features.map(f=><label key={f.id} className="feature-option"><input type="checkbox" checked={enabled.includes(f.id)} onChange={e=>setEnabled(old=>e.target.checked?[...old,f.id]:old.filter(x=>x!==f.id))}/><span className="custom-check"><Check size={12}/></span><span>{f.label}</span></label>)}</div>
             </section>
             <section className="panel" id="template-library">
-              <div className="panel-heading"><div className="panel-icon orange"><LayoutTemplate size={18}/></div><div><h2>Choose a starting template</h2><p>Each layout is reusable and ready for branding.</p></div></div>
+              <div className="panel-heading"><div className="panel-icon orange"><LayoutTemplate size={18}/></div><div><h2>Choose a news layout</h2><p>Nine starting layouts for regional, TV, newspaper and lightweight news publishers.</p></div></div>
               <div className="template-list">{templates.map(t=><button key={t.id} className={"template-option "+(templateId===t.id?"selected":"")} onClick={()=>{setTemplateId(t.id);if(primaryColor===selected.accent)setPrimaryColor(t.accent)}}><span className={"template-mini "+t.style} style={{"--accent":t.accent} as React.CSSProperties}><i/><i/><i/><b/><em/></span><span className="template-copy"><b>{t.name}</b><small>{t.category} · {t.tags[0]}</small></span><span className="radio-mark">{templateId===t.id&&<span/>}</span></button>)}</div>
             </section>
             <button className="generate-button" onClick={generate} disabled={generating||!siteName.trim()}>{generating?<LoaderCircle className="spin" size={18}/>:<Sparkles size={18}/>} {generating?"Generating configuration…":"Generate my website"} <ArrowRight size={18}/></button>
@@ -104,7 +104,7 @@ export default function Home() {
           </div>
         </div>
         <section className="how-section" id="how-it-works"><div><span className="eyebrow">SIMPLE BY DESIGN</span><h2>From idea to newsroom, in three steps.</h2></div><div className="how-cards"><article><span>01</span><h3>Choose your style</h3><p>Start with a reusable layout made for news publishers.</p></article><article><span>02</span><h3>Make it yours</h3><p>Set your brand, language, color and key website features.</p></article><article><span>03</span><h3>Prepare to publish</h3><p>Export your configuration now. Real WordPress publishing and hosting automation are next milestones.</p></article></div></section>
-        <footer className="footer"><span>© 2026 NewsForge AI</span><span>Built for independent newsrooms <span className="footer-heart">●</span></span><span>Early access · MVP</span></footer>
+        <footer className="footer"><span>© 2026 NewsForge AI</span><span>Built for Indian and independent newsrooms <span className="footer-heart">●</span></span><span>Early access · MVP</span></footer>
       </div>
     </section>
   </main>;
