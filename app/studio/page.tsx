@@ -14,6 +14,8 @@ export default function Home() {
   const [templateQuery,setTemplateQuery] = useState("");
   const [primaryColor,setPrimaryColor] = useState("#16845b");
   const [enabled,setEnabled] = useState<string[]>(["breaking-ticker","live-tv","ad-slots"]);
+  const [categories,setCategories] = useState<string[]>(["Latest","Gujarat","India","World","Politics","Sports"]);
+  const [categoryDraft,setCategoryDraft] = useState("");
   const [config,setConfig] = useState<Config|null>(null);
   const [generating,setGenerating] = useState(false);
   const [notice,setNotice] = useState("");
@@ -28,10 +30,15 @@ export default function Home() {
   const selected = useMemo(()=>templates.find(t=>t.id===templateId) ?? templates[0],[templateId]);
   const visibleTemplates = useMemo(()=>templates.filter(t=>`${t.name} ${t.category} ${t.tags.join(" ")}`.toLowerCase().includes(templateQuery.trim().toLowerCase())),[templateQuery]);
 
+  function addCategory() {
+    const next = categoryDraft.trim().replace(/\\s+/g, " ").slice(0, 24);
+    if (!next || categories.some(item => item.toLowerCase() === next.toLowerCase()) || categories.length >= 12) return;
+    setCategories(old => [...old, next]); setCategoryDraft("");
+  }
   async function generate() {
     setGenerating(true); setError(""); setNotice("");
     try {
-      const response = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled})});
+      const response = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled,categories})});
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Could not generate configuration.");
       setConfig(data.config); setNotice("Your website configuration is ready. Preview it, then export the setup file.");
@@ -105,6 +112,9 @@ export default function Home() {
               <label className="field-label" htmlFor="siteName">News brand name</label><input id="siteName" className="text-input" maxLength={80} value={siteName} onChange={e=>setSiteName(e.target.value)} placeholder="e.g. Gujarat News 24"/>
               <div className="two-fields"><div><label className="field-label" htmlFor="language">Primary language</label><div className="select-wrap"><select id="language" value={language} onChange={e=>setLanguage(e.target.value)}><option value="gu">ગુજરાતી (Gujarati)</option><option value="hi">हिन्दी (Hindi)</option><option value="en">English</option></select><ChevronDown size={16}/></div></div><div><label className="field-label" htmlFor="color">Brand color</label><div className="color-field"><input id="color" type="color" value={primaryColor} onChange={e=>setPrimaryColor(e.target.value)}/><span>{primaryColor.toUpperCase()}</span><Palette size={16}/></div></div></div>
               <div className="divider"/>
+              <div className="subheading"><div><h3>News navigation</h3><p>Add the sections your readers will browse.</p></div><span className="optional">{categories.length}/12</span></div>
+              <div className="category-editor"><div className="category-chips">{categories.map(category=><span className="category-chip" key={category}>{category}<button type="button" aria-label={"Remove "+category} onClick={()=>setCategories(old=>old.filter(item=>item!==category))}>×</button></span>)}</div><div className="category-add"><input aria-label="New news category" value={categoryDraft} maxLength={24} onChange={e=>setCategoryDraft(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();addCategory();}}} placeholder="Add a category, e.g. Education"/><button type="button" onClick={addCategory} disabled={!categoryDraft.trim()||categories.length>=12||categories.some(item=>item.toLowerCase()===categoryDraft.trim().toLowerCase())}>Add</button></div><small>Up to 12 unique categories. Changes appear in the preview and exported setup.</small></div>
+              <div className="divider"/>
               <div className="subheading"><div><h3>Website features</h3><p>Choose what your readers should see.</p></div><span className="optional">OPTIONAL</span></div>
               <div className="feature-list">{features.map(f=><label key={f.id} className="feature-option"><input type="checkbox" checked={enabled.includes(f.id)} onChange={e=>setEnabled(old=>e.target.checked?[...old,f.id]:old.filter(x=>x!==f.id))}/><span className="custom-check"><Check size={12}/></span><span>{f.label}</span></label>)}</div>
             </section>
@@ -121,7 +131,7 @@ export default function Home() {
             <div className="browser-frame"><div className="browser-top"><div className="traffic"><i/><i/><i/></div><div className="browser-address"><ShieldCheck size={11}/> preview.newsforge.ai/{siteName.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"your-news"}</div><ExternalLink size={13}/></div>
               <div className={"site-preview template-"+selected.style} style={{"--accent":primaryColor} as React.CSSProperties}>
                 <div className="preview-masthead"><div className="preview-logo"><span className="preview-logo-mark"><Radio size={17}/></span><span>{siteName||"Your News Brand"}<small>{language==="gu"?"તમારા સમાચાર, તમારી ભાષામાં":language==="hi"?"आपकी खबर, आपकी आवाज़":"YOUR NEWS. YOUR VOICE."}</small></span></div><div className="preview-date">LIVE UPDATES <span>●</span></div></div>
-                <nav className="preview-nav">{(language==="gu"?["હોમ","ગુજરાત","દેશ","દુનિયા","રાજકારણ","રમતગમત"]:language==="hi"?["होम","राज्य","देश","दुनिया","राजनीति","खेल"]:["Home","Local","India","World","Politics","Sports"]).map((x,i)=><span key={x} className={i===0?"nav-active":""}>{x}</span>)}</nav>
+                <nav className="preview-nav">{categories.slice(0, 6).map((x,i)=><span key={x} className={i===0?"nav-active":""}>{x}</span>)}</nav>
                 {enabled.includes("breaking-ticker")&&<div className="ticker"><b>BREAKING</b><span>{language==="gu"?"તાજા સમાચાર માટે તમારી વેબસાઇટ તૈયાર છે":language==="hi"?"ताज़ा खबरों के लिए आपकी वेबसाइट तैयार है":"Your breaking news ticker will appear here"}</span></div>}
                 <div className="preview-body"><div className="preview-kicker"><span/> PREVIEW COPY · REPLACE WITH YOUR STORIES</div><div className="preview-headline">{language==="gu"?"ગુજરાત અને દેશના તાજા સમાચાર એક જ જગ્યાએ":language==="hi"?"देश और दुनिया की ताज़ा खबरें, एक ही जगह":"The latest stories that matter to your community"}</div><p className="preview-description">{language==="gu"?"તમારી બ્રાન્ડ, તમારી ભાષા અને તમારા વાચકો માટે બનાવેલી ન્યૂઝ વેબસાઇટ.":language==="hi"?"आपके ब्रांड और पाठकों के लिए बनाई गई आधुनिक न्यूज़ वेबसाइट।":"A modern news experience designed around your brand and your readers."}</p><div className="preview-meta">NEWS DESK <span>•</span> 5 MIN READ</div><div className="preview-image"><div className="image-sun"/><div className="image-hill hill-one"/><div className="image-hill hill-two"/><div className="image-caption"><span>FEATURED STORY</span><b>{selected.name}</b></div></div><div className="preview-cards"><div><span>LOCAL NEWS</span><b>Stories from your region</b></div><div><span>TOP STORIES</span><b>What readers need to know</b></div></div></div>
                 {enabled.includes("live-tv")&&<div className="live-strip"><Radio size={13}/> LIVE TV SECTION <span>Connect your stream in WordPress</span></div>}{enabled.includes("ad-slots")&&<div className="ad-slot-preview">ADVERTISEMENT SLOT <span>Ad provider not connected</span></div>}{enabled.includes("social-links")&&<div className="social-preview"><b>FOLLOW OUR NEWSROOM</b><span>Facebook</span><span>YouTube</span><span>Instagram</span><small>Add your real profile URLs in WordPress</small></div>}
