@@ -11,7 +11,7 @@ NewsForge AI is an early-stage, template-first news website generator. It is des
 - Template inspiration notes for Indian news-publishing patterns; these presets are original UI layouts, not bundled third-party WordPress themes.
 - Server-side, validated website configuration generation at POST /api/generate.
 - Export of generated configuration as a JSON file. Export re-generates the configuration from the current form values, so changing the brand, language, color, template or feature toggles before export does not silently download an older configuration.
-- WordPress authentication test at POST /api/wordpress using HTTPS and a revocable WordPress Application Password.
+- WordPress authentication test at POST /api/wordpress using HTTPS and a revocable WordPress Application Password.\n- Explicit WordPress starter publishing action that creates missing standard news categories and publishes About, Contact, and Privacy Policy starter pages; existing items with matching slugs are left unchanged. Partial failures are reported per item.
 - Clear UI messaging: generating a configuration is not the same as publishing a website.
 
 ## Template strategy
@@ -45,21 +45,21 @@ Open http://localhost:3000.
 
 Create a dedicated WordPress user with only the permissions needed for the intended workflow. Create a revocable Application Password from that user's profile, then enter the HTTPS site URL, username, and Application Password in the dashboard.
 
-Do not use your main administrator password. The connection endpoint currently uses the supplied credentials only to test access and does not persist them or change content.
+Do not use your main administrator password. The connection endpoint does not persist credentials. The separate “Create starter pages” action makes real WordPress changes after a confirmation: it creates missing standard categories and publishes About, Contact, and Privacy Policy starter pages. Existing pages with matching slugs are left unchanged. Review and replace the Contact and Privacy Policy starter text before public launch.
 
 Before production multi-tenant use, add authentication and authorization, rate limiting, audit logging, SSRF protections (including DNS/IP validation and redirect controls), and a documented encrypted credential lifecycle. Do not store customer credentials until these controls exist.
 
 ## Current limitations — be transparent
 
 - Template preview and configuration generation do not install a WordPress theme.
-- The WordPress integration currently tests authentication only; it does not create pages, menus, categories, or publish content.
+- The WordPress integration can test access and create starter categories/pages, but it does not install themes, build custom menus, configure a homepage, publish news articles, or provision hosting.
 - AI customization is not connected to an AI provider yet. The template-first configuration path does not require an AI API key.
 - User accounts, billing, secure multi-tenant project storage, hosting provisioning, custom-domain automation, and SSL provisioning are not implemented yet.
 - The latest observed Vercel production deployment reached READY. CI and runtime checks should still be monitored on each new commit.
 
 ## Roadmap
 
-1. Expand automated coverage to current-state export behavior and WordPress connection validation.
+1. Expand automated coverage to current-state export behavior and live WordPress API behavior with controlled test fixtures.
 2. Run and verify the production build and CI checks after each meaningful change.
 3. Build a minimal WordPress plugin/adapter for applying approved settings and creating pages.
 4. Add secure accounts, project persistence, and encrypted credential handling.
