@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { ArrowDownToLine, ArrowRight, Check, ChevronDown, CircleHelp, ExternalLink, Globe2, Layers3, LayoutTemplate, LoaderCircle, MonitorSmartphone, Palette, Plus, Radio, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
+import { ArrowDownToLine, ArrowRight, Check, ChevronDown, CircleHelp, ExternalLink, Globe2, Layers3, LayoutTemplate, LoaderCircle, MonitorSmartphone, Palette, Plus, Radio, Search, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
 import { templates } from "@/lib/templates";
 
 type Config = { siteName: string; language: string; templateId: string; templateName: string; branding: { primaryColor: string }; features: string[]; pages: string[]; categories: string[]; generatedAt: string };
@@ -11,6 +11,7 @@ export default function Home() {
   const [siteName,setSiteName] = useState("Gujarat News 24");
   const [language,setLanguage] = useState("gu");
   const [templateId,setTemplateId] = useState("regional-connect");
+  const [templateQuery,setTemplateQuery] = useState("");
   const [primaryColor,setPrimaryColor] = useState("#16845b");
   const [enabled,setEnabled] = useState<string[]>(["breaking-ticker","live-tv","ad-slots"]);
   const [config,setConfig] = useState<Config|null>(null);
@@ -25,6 +26,7 @@ export default function Home() {
   const [wpPublishBusy,setWpPublishBusy] = useState(false);
   const [wpResult,setWpResult] = useState("");
   const selected = useMemo(()=>templates.find(t=>t.id===templateId) ?? templates[0],[templateId]);
+  const visibleTemplates = useMemo(()=>templates.filter(t=>`${t.name} ${t.category} ${t.tags.join(" ")}`.toLowerCase().includes(templateQuery.trim().toLowerCase())),[templateQuery]);
 
   async function generate() {
     setGenerating(true); setError(""); setNotice("");
@@ -108,7 +110,7 @@ export default function Home() {
             </section>
             <section className="panel" id="template-library">
               <div className="panel-heading"><div className="panel-icon orange"><LayoutTemplate size={18}/></div><div><h2>Choose a news layout</h2><p>Nine starting layouts for regional, TV, newspaper and lightweight news publishers.</p></div></div>
-              <div className="template-list">{templates.map(t=><button key={t.id} className={"template-option "+(templateId===t.id?"selected":"")} onClick={()=>{setTemplateId(t.id);if(primaryColor===selected.accent)setPrimaryColor(t.accent)}}><span className={"template-mini "+t.style} style={{"--accent":t.accent} as React.CSSProperties}><i/><i/><i/><b/><em/></span><span className="template-copy"><b>{t.name}</b><small>{t.category} · {t.tags[0]}</small></span><span className="radio-mark">{templateId===t.id&&<span/>}</span></button>)}</div>
+              <label className="template-search"><Search size={16}/><input aria-label="Search news layouts" value={templateQuery} onChange={e=>setTemplateQuery(e.target.value)} placeholder="Search layouts, e.g. regional or magazine"/>{templateQuery&&<button type="button" aria-label="Clear template search" onClick={()=>setTemplateQuery("")}>Clear</button>}</label><div className="template-results-count">{visibleTemplates.length} of {templates.length} layouts</div><div className="template-list">{visibleTemplates.map(t=><button key={t.id} className={"template-option "+(templateId===t.id?"selected":"")} onClick={()=>{setTemplateId(t.id);if(primaryColor===selected.accent)setPrimaryColor(t.accent)}}><span className={"template-mini "+t.style} style={{"--accent":t.accent} as React.CSSProperties}><i/><i/><i/><b/><em/></span><span className="template-copy"><b>{t.name}</b><small>{t.category} · {t.tags[0]}</small></span><span className="radio-mark">{templateId===t.id&&<span/>}</span></button>)}{visibleTemplates.length===0&&<div className="template-empty">No layouts match “{templateQuery}”. Try “regional”, “business” or “magazine”.</div>}</div>
             </section>
             <button className="generate-button" onClick={generate} disabled={generating||!siteName.trim()}>{generating?<LoaderCircle className="spin" size={18}/>:<Sparkles size={18}/>} {generating?"Generating configuration…":"Generate my website"} <ArrowRight size={18}/></button>
             <p className="secure-note"><ShieldCheck size={14}/> No AI key required for template setup. Your choices stay in this session.</p>
