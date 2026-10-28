@@ -67,7 +67,12 @@ type WpItem = { id: number; name?: string; slug?: string; link?: string; message
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await request.json() as Record<string, unknown>;
+    } catch {
+      return NextResponse.json({ error: "Request body must be valid JSON." }, { status: 400 });
+    }
     const siteUrl = safeUrl(body.siteUrl);
     const username = typeof body.username === "string" ? body.username.trim().slice(0, 150) : "";
     const appPassword = typeof body.appPassword === "string" ? body.appPassword.replace(/\s/g, "").slice(0, 300) : "";
