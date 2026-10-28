@@ -105,7 +105,7 @@ export default function Home() {
             <span className="inspiration-index">02 / REGIONAL</span><strong>Bhadko News Network</strong><span className="inspiration-domain">bhadko.co.in ↗</span><p>Regional publishing and a recognisable local-news brand.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
           </a>
           <a className="inspiration-card inspiration-digital" href="https://bindia.co/" target="_blank" rel="noopener noreferrer">
-            <span className="inspiration-index">03 / DIGITAL</span><strong>B India</strong><span className="inspiration-domain">bindia.co ↗</span><p>A digital-first reference for your own publication's identity.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
+            <span className="inspiration-index">03 / DIGITAL</span><strong>B India</strong><span className="inspiration-domain">bindia.co ↗</span><p>A digital-first reference for your own publication&apos;s identity.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
           </a>
           <a className="inspiration-card inspiration-regional" href="https://khabarkitahtak.co.in/" target="_blank" rel="noopener noreferrer">
             <span className="inspiration-index">04 / REGIONAL</span><strong>Khabar Ki Tahak</strong><span className="inspiration-domain">khabarkitahtak.co.in ↗</span><p>A regional-news reference for clear headlines and quick navigation.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
