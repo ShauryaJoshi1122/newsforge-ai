@@ -97,3 +97,20 @@ Before production multi-tenant use, add authentication and authorization, rate l
 ## Named news-publisher inspiration
 
 The public homepage includes a **Newsroom Inspiration** directory with clickable names for NDTV, Bhadko News Network, B India, Khabar Ki Tahak, TV9 Gujarati, ABP Asmita, Divya Bhaskar and Zee 24 Kalak. The links are references for visitors to explore, not affiliations or endorsements. The cards use original NewsForge styling and do not copy third-party logos or claim the referenced sites are NewsForge customers. The builder still creates its own original preview layouts; it does not clone or automatically reproduce these publishers' websites.
+
+## Full news-page preview and share links
+
+- After generating a configuration in Studio, use **Full preview** to open a branded, responsive website preview at `/preview`.
+- The preview includes the homepage layout, category-page layouts for configured navigation items, an article-detail template, and About, Contact, and Privacy Policy page structures.
+- **Copy preview link** creates a shareable URL that contains the generated public design configuration. It can be opened on another device without logging into Studio.
+- Preview pages intentionally use empty content slots and clearly labelled placeholders instead of fabricated breaking news, article headlines, authors, or publication dates.
+- The preview link is a shareable design preview on the existing NewsForge deployment, not a separately provisioned customer domain. The configuration is encoded in the URL; it is not saved to a database, does not expire automatically, and should not contain private information.
+- This is the first step toward a ZipWP-style flow, not complete automatic website provisioning. The current app does not yet create a WordPress theme, publish news articles, store user projects, provision customer-specific subdomains, or manage temporary hosting/SSL lifecycle.
+- For a public production site today, connect a real WordPress installation and hosting account separately. Review all starter pages and replace placeholder content before launch.
+
+## Temporary preview hosting: current and next step
+
+Current: the preview route is served by the existing Vercel deployment at `/preview`. A copied link shares the generated design configuration on that domain. No new Vercel project, customer subdomain, database record, or WordPress install is created by this action.
+
+Next for true temporary customer sites: add authenticated project storage, expiry timestamps and cleanup, per-project access controls, a hosting/provisioning adapter, subdomain assignment, SSL verification, rate limits, and a user-approved publish/teardown flow. Do not claim that a customer site has been independently hosted until those services are integrated and verified.
+
