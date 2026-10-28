@@ -43,10 +43,12 @@ export default function Home() {
   async function generate() {
     setGenerating(true); setError(""); setNotice("");
     try {
-      const response = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled,categories,homepage:{headline:heroHeadline,description:heroDescription,tickerText}})});
+      const response = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled,categories,homepage:{headline:heroHeadline,description:heroDescription,tickerText},...(aiPrompt.trim()?{prompt:aiPrompt.trim()}: {})})});
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Could not generate configuration.");
-      setConfig(data.config); setNotice("Your website configuration is ready. Preview it, then export the setup file.");
+      const next = data.config as Config;
+      setConfig(next); setTemplateId(next.templateId); setPrimaryColor(next.branding.primaryColor); setEnabled(next.features); setCategories(next.categories); setHeroHeadline(next.homepage.headline); setHeroDescription(next.homepage.description); setTickerText(next.homepage.tickerText);
+      setNotice(data.mode === "ai" ? "AI design generated with Gemini. Review the preview and refine it before publishing." : "Your website configuration is ready. Preview it, then export the setup file.");
     } catch(e) { setError(e instanceof Error ? e.message : "Something went wrong."); }
     finally { setGenerating(false); }
   }
@@ -154,8 +156,9 @@ export default function Home() {
               <div className="panel-heading"><div className="panel-icon orange"><LayoutTemplate size={18}/></div><div><h2>Choose a news layout</h2><p>Nine starting layouts for regional, TV, newspaper and lightweight news publishers.</p></div></div>
               <label className="template-search"><Search size={16}/><input aria-label="Search news layouts" value={templateQuery} onChange={e=>setTemplateQuery(e.target.value)} placeholder="Search layouts, e.g. regional or magazine"/>{templateQuery&&<button type="button" aria-label="Clear template search" onClick={()=>setTemplateQuery("")}>Clear</button>}</label><div className="template-results-count">{visibleTemplates.length} of {templates.length} layouts</div><div className="template-list">{visibleTemplates.map(t=><button key={t.id} className={"template-option "+(templateId===t.id?"selected":"")} onClick={()=>{setTemplateId(t.id);if(primaryColor===selected.accent)setPrimaryColor(t.accent)}}><span className={"template-mini "+t.style} style={{"--accent":t.accent} as React.CSSProperties}><i/><i/><i/><b/><em/></span><span className="template-copy"><b>{t.name}</b><small>{t.category} · {t.tags[0]}</small></span><span className="radio-mark">{templateId===t.id&&<span/>}</span></button>)}{visibleTemplates.length===0&&<div className="template-empty">No layouts match “{templateQuery}”. Try “regional”, “business” or “magazine”.</div>}</div>
             </section>
-            <button className="generate-button" onClick={generate} disabled={generating||!siteName.trim()}>{generating?<LoaderCircle className="spin" size={18}/>:<Sparkles size={18}/>} {generating?"Generating configuration…":"Generate my website"} <ArrowRight size={18}/></button>
-            <p className="secure-note"><ShieldCheck size={14}/> No AI key required for template setup. Your choices stay in this session.</p>
+            <section className="panel ai-brief-panel" aria-labelledby="ai-brief-title"><div className="panel-heading"><div className="panel-icon purple"><Sparkles size={18}/></div><div><h2 id="ai-brief-title">Describe your website to AI</h2><p>Tell Gemini what kind of newsroom you want. It will choose a suitable layout, brand color, sections and homepage copy.</p></div><span className="optional">AI</span></div><label className="field-label" htmlFor="ai-brief">Your design brief</label><textarea id="ai-brief" className="text-input content-textarea" maxLength={2000} value={aiPrompt} onChange={e=>setAiPrompt(e.target.value)} placeholder="Example: Create a premium Gujarati regional news portal for Patan. Use a trustworthy green-and-white identity, clear Gujarat and local sections, a breaking-news ticker, and a mobile-first editorial layout."/><small>{aiPrompt.length}/2000 characters · Leave empty to use the selected template without AI.</small></section>
+            <button className="generate-button" onClick={generate} disabled={generating||!siteName.trim()}>{generating?<LoaderCircle className="spin" size={18}/>:<Sparkles size={18}/>} {generating?(aiPrompt.trim()?"Generating AI design…":"Generating configuration…"):(aiPrompt.trim()?"Generate with AI":"Generate my website")} <ArrowRight size={18}/></button>
+            <p className="secure-note"><ShieldCheck size={14}/> AI generation uses your server-side Gemini API key. Without a brief, the existing template generator works without an AI key.</p>
             {error&&<div className="notice error">{error}</div>}{notice&&<div className="notice success"><Check size={16}/>{notice}</div>}
           </div>
           <div className="preview-column" id="live-preview">
