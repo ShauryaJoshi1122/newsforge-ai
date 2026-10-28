@@ -67,3 +67,22 @@ button,.template-option,.wp-publish,.wp-test,.download-button{transition:backgro
 
 /* Editable homepage copy fields */
 .content-editor{margin-top:13px}.content-editor .field-label{display:block;margin-top:12px}.content-editor .field-label:first-child{margin-top:0}.content-editor>small{display:block;margin-top:5px;color:#87948a;font-size:10px;line-height:1.5}.content-textarea{display:block;width:100%;min-height:78px;padding:10px 12px;resize:vertical;line-height:1.55;font-family:inherit}.content-editor .text-input:focus{border-color:#299467;box-shadow:0 0 0 3px #16845b18}
+
+
+/* Named news-publisher inspiration directory */
+.landing-inspiration-section{max-width:1176px;margin:0 auto;padding:92px 0 12px}
+.inspiration-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.inspiration-card{position:relative;display:flex;flex-direction:column;min-height:218px;padding:19px 17px 15px;border:1px solid #e2eae3;border-radius:12px;background:#fff;color:var(--ink);text-decoration:none;overflow:hidden;transition:transform .18s,border-color .18s,box-shadow .18s}
+.inspiration-card:before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--inspiration-accent,#16845b)}
+.inspiration-card:hover{transform:translateY(-3px);border-color:#bfd8c5;box-shadow:0 12px 28px #1d49320d}
+.inspiration-card:focus-visible{outline:3px solid #16845b;outline-offset:3px}
+.inspiration-index{font-size:8px;font-weight:850;letter-spacing:1px;color:#87948a}
+.inspiration-card>strong{font-family:Manrope,sans-serif;font-size:19px;line-height:1.22;letter-spacing:-.55px;margin-top:18px;overflow-wrap:anywhere}
+.inspiration-domain{font-size:9px;color:var(--inspiration-accent,#16845b);margin-top:7px;font-weight:750;overflow-wrap:anywhere}
+.inspiration-card p{font-size:10px;line-height:1.7;color:#78867b;margin:13px 0 17px}
+.inspiration-action{display:flex;align-items:center;gap:6px;margin-top:auto;font-size:9px;color:var(--inspiration-accent,#16845b)}
+.inspiration-national{--inspiration-accent:#c7353c}.inspiration-local{--inspiration-accent:#16845b}.inspiration-digital{--inspiration-accent:#2b65a1}.inspiration-regional{--inspiration-accent:#bf6c2d}.inspiration-broadcast{--inspiration-accent:#d33b42}.inspiration-editorial{--inspiration-accent:#7852c8}.inspiration-newspaper{--inspiration-accent:#96732b}
+.inspiration-footer{display:flex;align-items:flex-start;gap:11px;margin-top:17px;padding:15px;border:1px solid #e4ece5;border-radius:9px;background:#f5faf6;color:#758278}
+.inspiration-footer>svg{flex-shrink:0;color:#16845b;margin-top:1px}.inspiration-footer p{flex:1;font-size:10px;line-height:1.7;margin:0}.inspiration-footer p b{color:#33463a}.inspiration-footer>a{display:flex;align-items:center;gap:5px;color:#16845b;font-size:10px;font-weight:850;white-space:nowrap}
+@media(max-width:900px){.landing-inspiration-section{margin:0 32px}.inspiration-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.landing-inspiration-section{margin:0 16px;padding-top:65px}.inspiration-grid{gap:9px}.inspiration-card{min-height:218px;padding:16px 12px 13px}.inspiration-card>strong{font-size:16px;margin-top:15px}.inspiration-card p{font-size:9px}.inspiration-footer{flex-wrap:wrap;padding:12px}.inspiration-footer p{min-width:calc(100% - 34px)}.inspiration-footer>a{margin-left:27px}}
