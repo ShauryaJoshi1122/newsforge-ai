@@ -84,3 +84,9 @@ Before production multi-tenant use, add authentication and authorization, rate l
 - The existing website builder now lives at `/studio`; its template search, live layout preview, configuration export and WordPress starter-page workflow are preserved.
 - The homepage includes responsive navigation, feature explanations, template-style cards, a three-step workflow and a clear statement of current product limits.
 - Homepage template cards are illustrative design previews. They are not claims that a complete production WordPress theme is installed or provisioned.
+
+## Editable news navigation
+
+- Add and remove up to 12 custom news categories in the studio; duplicate names are blocked in the interface and empty names are ignored.
+- Category names are normalized and length-limited by the server before they enter the generated JSON configuration.
+- The first six configured categories appear in the visual navigation preview, and the same category list is included when exporting the configuration.
