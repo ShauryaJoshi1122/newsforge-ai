@@ -74,9 +74,11 @@ export default function ProjectActions({ config }: { config: ProjectConfig }) {
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Could not connect custom domain.");
+      const records = Array.isArray(data.dnsInstructions) ? data.dnsInstructions as Array<{ type?: string; domain?: string; value?: string; reason?: string }> : [];
+      const recordText = records.length ? " DNS records: " + records.map(record => [record.type, record.domain, record.value, record.reason].filter(Boolean).join(" — ")).join("; ") : "";
       setDomainDetails(data.verified
         ? "Domain verified. DNS and HTTPS status may take a few minutes to settle."
-        : "Domain added, but ownership verification is still required. Open your Vercel project → Settings → Domains and follow the exact DNS verification instructions there.");
+        : "Domain added, but ownership verification is still required. Open your Vercel project → Settings → Domains and follow the exact DNS verification instructions there." + recordText);
       setMessage(data.message || "Domain request processed.");
     } catch (error) { setMessage(error instanceof Error ? error.message : "Could not connect domain."); }
     finally { setBusy(""); }
