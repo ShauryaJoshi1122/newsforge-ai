@@ -14,7 +14,14 @@ export async function POST(request: Request) {
     const allowed = ["breaking-ticker", "live-tv", "ad-slots", "social-links"];
     const defaultCategories = ["Latest", "Local", "India", "World", "Politics", "Sports", "Business", "Entertainment"];
     const requestedCategories = Array.isArray(body.categories) ? body.categories : defaultCategories;
-    const categories = [...new Set(requestedCategories.filter((item: unknown): item is string => typeof item === "string").map((item: string) => item.trim().replace(/\s+/g, " ").slice(0, 24)).filter((item: string) => item.length > 0).map((item: string) => item.slice(0, 24)))].slice(0, 12);
+    const categories: string[] = [];
+    for (const item of requestedCategories) {
+      if (typeof item !== "string") continue;
+      const normalized = item.trim().replace(/\s+/g, " ").slice(0, 24);
+      if (!normalized || categories.some((existing) => existing.toLowerCase() === normalized.toLowerCase())) continue;
+      categories.push(normalized);
+      if (categories.length === 12) break;
+    }
     const config = { version: 1, siteName, language, templateId: template.id, templateName: template.name, branding: { primaryColor, backgroundColor: "#ffffff", textColor: "#15202b" }, features: Array.isArray(body.features) ? body.features.filter((x: unknown) => typeof x === "string" && allowed.includes(x)).slice(0, 4) : ["breaking-ticker"], categories: categories.length ? categories : defaultCategories, pages: ["Home", "About", "Contact", "Privacy Policy"], generatedAt: new Date().toISOString() };
     return NextResponse.json({ ok: true, config, message: "Website configuration generated. Connect WordPress to publish it to a real site." });
   } catch { return NextResponse.json({ error: "Invalid request body." }, { status: 400 }); }
