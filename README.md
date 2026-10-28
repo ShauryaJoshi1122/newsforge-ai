@@ -4,14 +4,25 @@ NewsForge AI is an early-stage, template-first news website generator. It is des
 
 ## Current MVP
 
-- Responsive dashboard with six reusable news template choices.
+- Responsive dashboard with nine reusable news layout presets for broadcast, newspaper, magazine, regional-language, business and lightweight publishing.
 - Branding controls for news brand name, language, and primary color.
 - Feature toggles for breaking ticker, live TV section, ad slots, and social links.
 - Live design preview that updates as settings change.
+- Template inspiration notes for Indian news-publishing patterns; these presets are original UI layouts, not bundled third-party WordPress themes.
 - Server-side, validated website configuration generation at POST /api/generate.
 - Export of generated configuration as a JSON file.
 - WordPress authentication test at POST /api/wordpress using HTTPS and a revocable WordPress Application Password.
 - Clear UI messaging: generating a configuration is not the same as publishing a website.
+
+## Template strategy
+
+The presets are original layouts informed by common WordPress publishing patterns. For a real WordPress installation, evaluate and license themes directly from their official publishers before using them:
+
+- **ColorMag** / **Newsup** — news-magazine and regional portal patterns.
+- **Newspaper** / **JNews** — feature-rich editorial and multi-section news patterns (check commercial licensing).
+- **Astra** / **GeneratePress** — lightweight foundations that can be customized for local-language publishers.
+
+NewsForge currently previews its own layouts and exports configuration; it does **not** download, bundle, or install those third-party themes. Theme availability, compatibility and licensing must be checked on each publisher’s official site.
 
 ## Run locally
 
@@ -38,7 +49,7 @@ Before production multi-tenant use, add authentication and authorization, rate l
 - The WordPress integration currently tests authentication only; it does not create pages, menus, categories, or publish content.
 - AI customization is not connected to an AI provider yet. The template-first configuration path does not require an AI API key.
 - User accounts, billing, secure multi-tenant project storage, hosting provisioning, custom-domain automation, and SSL provisioning are not implemented yet.
-- The first Vercel production build completed successfully. ESLint configuration and CI checks are being tightened in follow-up commits; verify the latest deployment before relying on it.
+- The latest observed Vercel production deployment reached READY. CI and runtime checks should still be monitored on each new commit.
 
 ## Roadmap
 
