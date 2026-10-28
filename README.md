@@ -165,3 +165,12 @@ Add a random secret as `CRON_SECRET` in Vercel environment variables. The Vercel
 ### Important production limits
 
 This is database-backed shared hosting on one Next.js deployment, not isolated customer infrastructure. A permanent publish currently means “keep this saved configuration available without expiry.” It does not create a separate codebase, install a WordPress theme, publish live articles, or provide per-customer server isolation. Before taking paying customers, add user accounts, ownership/recovery for management tokens, rate limiting, abuse monitoring, quotas, domain teardown, backups, and end-to-end deployment tests. Vercel must also have the wildcard and customer domains attached and verified; source code alone cannot create DNS records or prove domain ownership.
+
+
+## Guided builder UX update
+
+- Refined the Studio introduction around a clear, three-step website-building flow: customise, preview, and connect WordPress.
+- Made the progress steps interactive so users can jump directly to brand settings, the live preview, or WordPress connection setup.
+- Added keyboard-visible focus states, clearer hover feedback, smoother control transitions, and reduced-motion support.
+- Improved mobile spacing and step navigation while preserving the existing template library, live preview, configuration export, saved-project controls, and WordPress integration.
+- This is an original NewsForge interface inspired by guided website-builder usability patterns; it does not copy ZipWP branding or imply that full WordPress hosting/theme provisioning is available.
