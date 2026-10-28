@@ -92,3 +92,8 @@ Before production multi-tenant use, add authentication and authorization, rate l
 - Validate and normalize homepage copy server-side, with character limits of 160 for headlines, 240 for descriptions, and 180 for ticker text.
 - Category names are normalized and length-limited by the server before they enter the generated JSON configuration.
 - The first six configured categories appear in the visual navigation preview, and the same category list is included when exporting the configuration.
+
+
+## Named news-publisher inspiration
+
+The public homepage includes a **Newsroom Inspiration** directory with clickable names for NDTV, Bhadko News Network, B India, Khabar Ki Tahak, TV9 Gujarati, ABP Asmita, Divya Bhaskar and Zee 24 Kalak. The links are references for visitors to explore, not affiliations or endorsements. The cards use original NewsForge styling and do not copy third-party logos or claim the referenced sites are NewsForge customers. The builder still creates its own original preview layouts; it does not clone or automatically reproduce these publishers' websites.
