@@ -38,7 +38,7 @@ Before production multi-tenant use, add authentication and authorization, rate l
 - The WordPress integration currently tests authentication only; it does not create pages, menus, categories, or publish content.
 - AI customization is not connected to an AI provider yet. The template-first configuration path does not require an AI API key.
 - User accounts, billing, secure multi-tenant project storage, hosting provisioning, custom-domain automation, and SSL provisioning are not implemented yet.
-- No deployment or production build has been verified from this repository yet.
+- The first Vercel production build completed successfully. ESLint configuration and CI checks are being tightened in follow-up commits; verify the latest deployment before relying on it.
 
 ## Roadmap
 
