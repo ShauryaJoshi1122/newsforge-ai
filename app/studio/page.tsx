@@ -31,7 +31,7 @@ export default function Home() {
   const visibleTemplates = useMemo(()=>templates.filter(t=>`${t.name} ${t.category} ${t.tags.join(" ")}`.toLowerCase().includes(templateQuery.trim().toLowerCase())),[templateQuery]);
 
   function addCategory() {
-    const next = categoryDraft.trim().replace(/\\s+/g, " ").slice(0, 24);
+    const next = categoryDraft.trim().replace(/\s+/g, " ").slice(0, 24);
     if (!next || categories.some(item => item.toLowerCase() === next.toLowerCase()) || categories.length >= 12) return;
     setCategories(old => [...old, next]); setCategoryDraft("");
   }
