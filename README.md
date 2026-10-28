@@ -114,3 +114,54 @@ Current: the preview route is served by the existing Vercel deployment at `/prev
 
 Next for true temporary customer sites: add authenticated project storage, expiry timestamps and cleanup, per-project access controls, a hosting/provisioning adapter, subdomain assignment, SSL verification, rate limits, and a user-approved publish/teardown flow. Do not claim that a customer site has been independently hosted until those services are integrated and verified.
 
+
+
+## Database-backed previews, expiry and publishing
+
+The saved-project workflow is implemented in the app code and requires one-time deployment setup before it can work in production.
+
+### 1. Configure Neon Postgres
+
+1. Create a Postgres database in Neon and copy its pooled connection string.
+2. Add `DATABASE_URL` to the Vercel project environment variables for Production and Preview.
+3. Run the SQL in `database/schema.sql` once against that database. It creates the project table and expiry/domain indexes.
+4. Redeploy after setting environment variables.
+
+The Studio's **Save project & create preview** action stores the normalized configuration and a database-generated UUID project ID, creates a unique slug, and sets a 24-hour expiry. A random management token is returned once to the browser; only its SHA-256 hash is stored in the database. Keep the browser session used to manage the project. The public preview does not expose the management token.
+
+### 2. Configure wildcard preview subdomains (optional)
+
+To use `https://<slug>.preview.yourdomain.com`:
+
+1. Add `preview.yourdomain.com` as a domain for this Vercel project.
+2. Configure DNS for `*.preview.yourdomain.com` to point to the Vercel project as instructed in Vercel's Domains settings.
+3. Add `PREVIEW_BASE_DOMAIN=preview.yourdomain.com` to Vercel environment variables and redeploy.
+
+Until this is configured, saved previews use the existing deployment URL in the form `/preview?project=<slug>`. The middleware routes wildcard subdomains to the saved project, and the server checks the database on each request. An expired or unknown slug is not served.
+
+### 3. Scheduled cleanup
+
+Add a random secret as `CRON_SECRET` in Vercel environment variables. The Vercel Cron Job calls `/api/cron/cleanup-previews` with the required bearer secret and deletes expired, unpublished preview records. The configured schedule runs daily, which is compatible with Vercel Hobby cron limits; an expired link is rejected immediately by the read API even before the next cleanup run. Check the current cron limits for your Vercel plan before changing the cadence.
+
+### 4. Publish and connect a custom domain
+
+- **Publish permanently** disables the expiry timestamp. The website stays served by this NewsForge deployment; this does not provision a separate WordPress installation or separate Vercel project.
+- To connect a custom domain through Vercel's API, set `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, and (for a team project) `VERCEL_TEAM_ID` in server-only Vercel environment variables. Never put these values in client-side code.
+- Enter a domain you own, click **Connect**, configure the exact DNS/ownership instructions shown in Vercel Settings → Domains, then click **Verify domain after DNS setup**. Only verified domains are mapped to a saved project.
+- The domain route and permanent-publish actions require the one-time management token returned when the project is saved. This MVP has no user accounts or recovery flow for that token, so keep the browser session open until domain setup is complete.
+
+### Required environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Neon Postgres connection string |
+| `CRON_SECRET` | Authorizes scheduled expiry cleanup |
+| `PREVIEW_BASE_DOMAIN` | Optional wildcard base domain, without protocol |
+| `VERCEL_TOKEN` | Server-only token for domain API actions |
+| `VERCEL_PROJECT_ID` | Vercel project receiving customer domains |
+| `VERCEL_TEAM_ID` | Optional Vercel team ID |
+| `APP_PRIMARY_DOMAIN` | Optional main NewsForge domain to exclude from custom-domain routing |
+
+### Important production limits
+
+This is database-backed shared hosting on one Next.js deployment, not isolated customer infrastructure. A permanent publish currently means “keep this saved configuration available without expiry.” It does not create a separate codebase, install a WordPress theme, publish live articles, or provide per-customer server isolation. Before taking paying customers, add user accounts, ownership/recovery for management tokens, rate limiting, abuse monitoring, quotas, domain teardown, backups, and end-to-end deployment tests. Vercel must also have the wildcard and customer domains attached and verified; source code alone cannot create DNS records or prove domain ownership.
