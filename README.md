@@ -76,3 +76,11 @@ Before production multi-tenant use, add authentication and authorization, rate l
 5. Integrate a real hosting provider for new WordPress site provisioning.
 6. Add an optional, verified AI provider for natural-language design changes.
 7. Add billing, quotas, backups, monitoring, and customer support tooling.
+
+
+## Homepage and studio experience
+
+- The public homepage at `/` introduces NewsForge, explains the current workflow and links visitors into the builder.
+- The existing website builder now lives at `/studio`; its template search, live layout preview, configuration export and WordPress starter-page workflow are preserved.
+- The homepage includes responsive navigation, feature explanations, template-style cards, a three-step workflow and a clear statement of current product limits.
+- Homepage template cards are illustrative design previews. They are not claims that a complete production WordPress theme is installed or provisioned.
