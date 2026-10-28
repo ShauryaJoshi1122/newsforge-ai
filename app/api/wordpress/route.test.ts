@@ -16,7 +16,7 @@ describe("POST /api/wordpress", () => {
     }));
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringContaining("HTTPS")
+      error: expect.stringContaining("site origin")
     });
   });
 
