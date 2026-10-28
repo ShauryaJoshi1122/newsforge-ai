@@ -15,6 +15,15 @@ NewsForge AI is an early-stage, template-first news website generator. It is des
 - Explicit WordPress starter publishing action that creates missing standard news categories and publishes About, Contact, and Privacy Policy starter pages; existing items with matching slugs are left unchanged. Partial failures are reported per item.
 - Clear UI messaging: generating a configuration is not the same as publishing a website.
 
+## Recent UI/UX improvements
+
+- Search and filter the nine layout presets by template name, category, or tags; the library shows the matching count and a helpful empty state.
+- Keep the live site preview visible while scrolling the builder on desktop, while letting it return to normal document flow on smaller screens.
+- Improve keyboard focus visibility, checkbox interaction feedback, button hover states, and reduced-motion support.
+- Make template search and selection controls more comfortable to use on mobile.
+
+These changes improve discovery and navigation in the existing builder; they do not imply that a WordPress site is automatically published or that preview placeholder copy is live news content.
+
 ## Template strategy
 
 The presets are original layouts informed by common WordPress publishing patterns. For a real WordPress installation, evaluate and license themes directly from their official publishers before using them:
