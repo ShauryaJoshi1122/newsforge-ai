@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { headers } from "next/headers";
+import { getProjectByDomain, getProjectBySlug } from "@/lib/projects";
 
 type SiteConfig = {
   siteName?: string;
@@ -50,7 +52,10 @@ export default async function PreviewPage({ searchParams }: { searchParams: Prom
   const isContact = activePage === "contact";
   const isPrivacy = activePage === "privacy";
   const pageTitle = category || (isArticle ? "Article template" : isAbout ? "About us" : isContact ? "Contact" : isPrivacy ? "Privacy policy" : site.siteName);
-  const hrefFor = (page: string) => "/preview?site=" + encodeURIComponent(params.site || "") + "&page=" + encodeURIComponent(page);
+  const projectQuery = projectSlug ? "project=" + encodeURIComponent(projectSlug)
+    : domain ? "domain=" + encodeURIComponent(domain)
+    : "site=" + encodeURIComponent(params.site || "");
+  const hrefFor = (page: string) => "/preview?" + projectQuery + "&page=" + encodeURIComponent(page);
   return <main className="full-preview" style={{ "--preview-accent": accent } as React.CSSProperties}>
     <div className="full-preview-banner"><span><b>PREVIEW MODE</b> · {site.templateName} · This is not a published news website.</span><Link href="/studio">← Back to Studio</Link></div>
     <header className="full-news-header">
