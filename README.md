@@ -61,9 +61,9 @@ Before production multi-tenant use, add authentication and authorization, rate l
 
 ## Current limitations — be transparent
 
-- Template preview and configuration generation do not install a WordPress theme.
+- The builder does not install a theme automatically. Studio can export an installable starter-theme ZIP that you upload in WordPress.
 - The WordPress integration can test access and create starter categories/pages, but it does not install themes, build custom menus, configure a homepage, publish news articles, or provision hosting.
-- AI customization is not connected to an AI provider yet. The template-first configuration path does not require an AI API key.
+- AI customization uses Gemini when `GEMINI_API_KEY` is configured; template-only setup still works without the key.
 - User accounts, billing, secure multi-tenant project storage, hosting provisioning, custom-domain automation, and SSL provisioning are not implemented yet.
 - The latest observed Vercel production deployment reached READY. CI and runtime checks should still be monitored on each new commit.
 
@@ -105,7 +105,7 @@ The public homepage includes a **Newsroom Inspiration** directory with clickable
 - **Copy preview link** creates a shareable URL that contains the generated public design configuration. It can be opened on another device without logging into Studio.
 - Preview pages intentionally use empty content slots and clearly labelled placeholders instead of fabricated breaking news, article headlines, authors, or publication dates.
 - The preview link is a shareable design preview on the existing NewsForge deployment, not a separately provisioned customer domain. The configuration is encoded in the URL; it is not saved to a database, does not expire automatically, and should not contain private information.
-- This is the first step toward a ZipWP-style flow, not complete automatic website provisioning. The current app does not yet create a WordPress theme, publish news articles, store user projects, provision customer-specific subdomains, or manage temporary hosting/SSL lifecycle.
+- This is the first step toward a ZipWP-style flow, not complete automatic website provisioning. The app can export a starter WordPress theme ZIP, but does not automatically install that theme, publish news articles, provision customer-specific subdomains, or manage temporary hosting/SSL lifecycle.
 - For a public production site today, connect a real WordPress installation and hosting account separately. Review all starter pages and replace placeholder content before launch.
 
 ## Temporary preview hosting: current and next step
@@ -174,3 +174,32 @@ This is database-backed shared hosting on one Next.js deployment, not isolated c
 - Added keyboard-visible focus states, clearer hover feedback, smoother control transitions, and reduced-motion support.
 - Improved mobile spacing and step navigation while preserving the existing template library, live preview, configuration export, saved-project controls, and WordPress integration.
 - This is an original NewsForge interface inspired by guided website-builder usability patterns; it does not copy ZipWP branding or imply that full WordPress hosting/theme provisioning is available.
+
+
+## Real AI website design generation
+
+The Studio now accepts a natural-language design brief and sends it to Google's Gemini API from the server. Gemini returns a constrained design specification (existing layout choice, brand color, navigation categories, supported feature toggles, and homepage copy). The app validates and sanitizes that specification before rendering it through NewsForge's existing preview. This is real provider-backed AI design customization, not AI-generated arbitrary HTML or a newly provisioned WordPress site.
+
+### Configure Gemini
+
+1. Create an API key in Google AI Studio.
+2. In Vercel → Project → Settings → Environment Variables, add `GEMINI_API_KEY` for the environments you use. Keep it server-side; never prefix it with `NEXT_PUBLIC_`.
+3. Optionally set `GEMINI_MODEL` to a Gemini model available to your API key. The default is `gemini-2.5-flash`.
+4. Redeploy the app, open Studio, enter a design brief, and choose **Generate with AI**. Without a brief, the original template-only generation still works without an AI key.
+
+Example brief: “Build a mobile-first Gujarati regional newsroom for Patan with a trustworthy green-and-white brand, clear Gujarat and local sections, a breaking ticker, and concise Gujarati homepage copy.”
+
+The API limits the brief to 2,000 characters, asks Gemini for JSON rather than executable code, validates the chosen template/color/features, and returns actionable errors when the key is missing or the provider is rate-limiting requests. Provider usage may incur charges or quotas depending on your Google AI Studio account. Do not promise free or unlimited generation.
+
+### Scope and next steps
+
+This first AI milestone personalizes the existing supported NewsForge layouts. It does not generate arbitrary React/HTML/CSS, fabricate current news, install WordPress themes, provision hosting, or automatically publish the result. The next milestone should add controlled layout/component variants and regression tests, then authenticated project ownership, per-user quotas/rate limiting, usage tracking, and an explicit publish workflow before opening AI generation to public customers.
+
+
+## Export a real WordPress theme
+
+After generating and reviewing a design in Studio, select **Download WordPress theme ZIP**. The server builds a WordPress-installable starter theme from the current configuration, including theme metadata, responsive CSS, header/footer, homepage, archive, article, and page templates. It applies the selected brand color, categories, homepage copy, and enabled features. The ZIP includes no fabricated news posts.
+
+To install it, open your WordPress dashboard → **Appearance → Themes → Add New Theme → Upload Theme**, upload the ZIP, install, then activate it. Review the result on a staging site first and configure the Primary Menu under Appearance → Menus if needed. Publish your own posts to populate story lists.
+
+This is a real starter theme export, not an automatic WordPress installation or hosting service. The endpoint validates the configuration and returns a ZIP file; it does not save WordPress credentials or contact your WordPress site.

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { POST } from "./route";
 
 function request(body: unknown) {
@@ -84,5 +84,49 @@ describe("POST /api/generate", () => {
     expect(response.status).toBe(200);
     expect(body.config.language).toBe("en");
     expect(body.config.branding.primaryColor).toBe("#16845b");
+  });
+});
+
+
+describe("Gemini-backed AI generation", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  const base = {
+    siteName: "Patan News", language: "gu", templateId: "regional-connect",
+    primaryColor: "#16845b", categories: ["Gujarat", "Local"],
+    features: ["breaking-ticker"],
+    homepage: { headline: "પાટણના સમાચાર", description: "સ્થાનિક સમાચાર", tickerText: "તાજા સમાચાર" }
+  };
+
+  it("returns a clear setup error when AI is requested without a Gemini key", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "");
+    const response = await POST(request({ ...base, prompt: "Design a modern Gujarati newsroom" }));
+    const body = await response.json();
+    expect(response.status).toBe(503);
+    expect(body.error).toContain("GEMINI_API_KEY");
+  });
+
+  it("uses only supported AI design fields and preserves the template-only route", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      candidates: [{ content: { parts: [{ text: JSON.stringify({
+        templateId: "business-desk", primaryColor: "#123456",
+        categories: ["Business", "Markets"],
+        features: ["breaking-ticker", "unknown-feature"],
+        homepage: { headline: "Business news", description: "Clear analysis", tickerText: "Market update" },
+        injectedHtml: "<script>alert(1)</script>"
+      }) }] }]
+    }), { status: 200, headers: { "Content-Type": "application/json" } })));
+    const response = await POST(request({ ...base, prompt: "Create a business news website" }));
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.mode).toBe("ai");
+    expect(body.config.templateId).toBe("business-desk");
+    expect(body.config.branding.primaryColor).toBe("#123456");
+    expect(body.config.features).toEqual(["breaking-ticker"]);
+    expect(body.config.injectedHtml).toBeUndefined();
   });
 });

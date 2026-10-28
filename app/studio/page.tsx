@@ -13,6 +13,7 @@ export default function Home() {
   const [language,setLanguage] = useState("gu");
   const [templateId,setTemplateId] = useState("regional-connect");
   const [templateQuery,setTemplateQuery] = useState("");
+  const [aiPrompt,setAiPrompt] = useState("");
   const [primaryColor,setPrimaryColor] = useState("#16845b");
   const [enabled,setEnabled] = useState<string[]>(["breaking-ticker","live-tv","ad-slots"]);
   const [categories,setCategories] = useState<string[]>(["Latest","Gujarat","India","World","Politics","Sports"]);
@@ -22,6 +23,7 @@ export default function Home() {
   const [tickerText,setTickerText] = useState("તાજા સમાચાર માટે તમારી વેબસાઇટ તૈયાર છે");
   const [config,setConfig] = useState<Config|null>(null);
   const [generating,setGenerating] = useState(false);
+  const [themeExporting,setThemeExporting] = useState(false);
   const [notice,setNotice] = useState("");
   const [error,setError] = useState("");
   const [wpOpen,setWpOpen] = useState(false);
@@ -42,10 +44,12 @@ export default function Home() {
   async function generate() {
     setGenerating(true); setError(""); setNotice("");
     try {
-      const response = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled,categories,homepage:{headline:heroHeadline,description:heroDescription,tickerText}})});
+      const response = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled,categories,homepage:{headline:heroHeadline,description:heroDescription,tickerText},...(aiPrompt.trim()?{prompt:aiPrompt.trim()}: {})})});
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Could not generate configuration.");
-      setConfig(data.config); setNotice("Your website configuration is ready. Preview it, then export the setup file.");
+      const next = data.config as Config;
+      setConfig(next); setTemplateId(next.templateId); setPrimaryColor(next.branding.primaryColor); setEnabled(next.features); setCategories(next.categories); setHeroHeadline(next.homepage.headline); setHeroDescription(next.homepage.description); setTickerText(next.homepage.tickerText);
+      setNotice(data.mode === "ai" ? "AI design generated with Gemini. Review the preview and refine it before publishing." : "Your website configuration is ready. Preview it, then export the setup file.");
     } catch(e) { setError(e instanceof Error ? e.message : "Something went wrong."); }
     finally { setGenerating(false); }
   }
@@ -65,6 +69,34 @@ export default function Home() {
       setNotice("Exported the latest configuration using your current brand, layout, language and features.");
     } catch(e) {
       setError(e instanceof Error ? e.message : "Could not export the configuration.");
+    }
+  }
+  async function downloadWordPressTheme() {
+    setThemeExporting(true); setError(""); setNotice("");
+    try {
+      // Refresh from the current form so the downloaded theme includes the latest edits.
+      const configResponse = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled,categories,homepage:{headline:heroHeadline,description:heroDescription,tickerText}})});
+      const configData = await configResponse.json().catch(() => ({}));
+      if (!configResponse.ok) throw new Error(configData.error || "Could not prepare your website configuration.");
+      const freshConfig = configData.config as Config;
+      const response = await fetch("/api/wordpress/theme",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({config:freshConfig})});
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Could not export the WordPress theme.");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = siteName.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") + "-wordpress-theme.zip";
+      a.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setConfig(freshConfig);
+      setNotice("Downloaded an installable WordPress theme ZIP. Test it on a staging site before activating it on production.");
+    } catch(e) {
+      setError(e instanceof Error ? e.message : "Could not export the WordPress theme.");
+    } finally {
+      setThemeExporting(false);
     }
   }
   function previewUrl(value: Config) {
@@ -153,8 +185,9 @@ export default function Home() {
               <div className="panel-heading"><div className="panel-icon orange"><LayoutTemplate size={18}/></div><div><h2>Choose a news layout</h2><p>Nine starting layouts for regional, TV, newspaper and lightweight news publishers.</p></div></div>
               <label className="template-search"><Search size={16}/><input aria-label="Search news layouts" value={templateQuery} onChange={e=>setTemplateQuery(e.target.value)} placeholder="Search layouts, e.g. regional or magazine"/>{templateQuery&&<button type="button" aria-label="Clear template search" onClick={()=>setTemplateQuery("")}>Clear</button>}</label><div className="template-results-count">{visibleTemplates.length} of {templates.length} layouts</div><div className="template-list">{visibleTemplates.map(t=><button key={t.id} className={"template-option "+(templateId===t.id?"selected":"")} onClick={()=>{setTemplateId(t.id);if(primaryColor===selected.accent)setPrimaryColor(t.accent)}}><span className={"template-mini "+t.style} style={{"--accent":t.accent} as React.CSSProperties}><i/><i/><i/><b/><em/></span><span className="template-copy"><b>{t.name}</b><small>{t.category} · {t.tags[0]}</small></span><span className="radio-mark">{templateId===t.id&&<span/>}</span></button>)}{visibleTemplates.length===0&&<div className="template-empty">No layouts match “{templateQuery}”. Try “regional”, “business” or “magazine”.</div>}</div>
             </section>
-            <button className="generate-button" onClick={generate} disabled={generating||!siteName.trim()}>{generating?<LoaderCircle className="spin" size={18}/>:<Sparkles size={18}/>} {generating?"Generating configuration…":"Generate my website"} <ArrowRight size={18}/></button>
-            <p className="secure-note"><ShieldCheck size={14}/> No AI key required for template setup. Your choices stay in this session.</p>
+            <section className="panel ai-brief-panel" aria-labelledby="ai-brief-title"><div className="panel-heading"><div className="panel-icon purple"><Sparkles size={18}/></div><div><h2 id="ai-brief-title">Describe your website to AI</h2><p>Tell Gemini what kind of newsroom you want. It will choose a suitable layout, brand color, sections and homepage copy.</p></div><span className="optional">AI</span></div><label className="field-label" htmlFor="ai-brief">Your design brief</label><textarea id="ai-brief" className="text-input content-textarea" maxLength={2000} value={aiPrompt} onChange={e=>setAiPrompt(e.target.value)} placeholder="Example: Create a premium Gujarati regional news portal for Patan. Use a trustworthy green-and-white identity, clear Gujarat and local sections, a breaking-news ticker, and a mobile-first editorial layout."/><small>{aiPrompt.length}/2000 characters · Leave empty to use the selected template without AI.</small></section>
+            <button className="generate-button" onClick={generate} disabled={generating||!siteName.trim()}>{generating?<LoaderCircle className="spin" size={18}/>:<Sparkles size={18}/>} {generating?(aiPrompt.trim()?"Generating AI design…":"Generating configuration…"):(aiPrompt.trim()?"Generate with AI":"Generate my website")} <ArrowRight size={18}/></button>
+            <p className="secure-note"><ShieldCheck size={14}/> AI generation uses your server-side Gemini API key. Without a brief, the existing template generator works without an AI key.</p>
             {error&&<div className="notice error">{error}</div>}{notice&&<div className="notice success"><Check size={16}/>{notice}</div>}
           </div>
           <div className="preview-column" id="live-preview">
@@ -169,7 +202,7 @@ export default function Home() {
               </div>
             </div>
             <div className="preview-footer"><span><span className="tiny-dot"/> Updating as you customize</span><button onClick={generate} disabled={generating}><Sparkles size={14}/> Refresh preview</button></div>
-            {config&&<div className="generated-card"><div className="generated-icon"><Check size={19}/></div><div className="generated-copy"><b>Configuration generated</b><span>{config.templateName} · {languageNames[config.language]||config.language}</span><small>This is a setup configuration, not a published WordPress site yet.</small></div><div className="generated-actions"><button className="preview-share-button" onClick={openFullPreview}><ExternalLink size={15}/> Full preview</button><button className="preview-share-button secondary" onClick={copyPreviewLink}><Globe2 size={15}/> Copy preview link</button><button className="download-button" onClick={downloadConfig}><ArrowDownToLine size={16}/> Export JSON</button></div></div>}
+            {config&&<div className="generated-card"><div className="generated-icon"><Check size={19}/></div><div className="generated-copy"><b>Configuration generated</b><span>{config.templateName} · {languageNames[config.language]||config.language}</span><small>This is a setup configuration, not a published WordPress site yet.</small></div><div className="generated-actions"><button className="preview-share-button" onClick={openFullPreview}><ExternalLink size={15}/> Full preview</button><button className="preview-share-button secondary" onClick={copyPreviewLink}><Globe2 size={15}/> Copy preview link</button><button className="preview-share-button secondary" onClick={downloadWordPressTheme} disabled={themeExporting}>{themeExporting?<LoaderCircle size={15} className="spin"/>:<ArrowDownToLine size={15}/>} {themeExporting?"Preparing theme…":"Download WordPress theme ZIP"}</button><button className="download-button" onClick={downloadConfig}><ArrowDownToLine size={16}/> Export JSON</button></div></div>}
             {config&&<ProjectActions key={config.generatedAt} config={config}/>}\n            <section className={"wordpress-card "+(wpOpen?"expanded":"")} id="wordpress-connection"><div className="wordpress-top"><div className="wp-icon">W</div><div><h3>Connect your WordPress</h3><p>Connect a real site, then create starter categories and pages when you are ready.</p></div><button className="wp-expand" onClick={()=>setWpOpen(!wpOpen)} aria-label="Toggle WordPress connection"><Plus size={18}/></button></div>
               {wpOpen&&<div className="wp-form"><label className="field-label" htmlFor="wp-url">WordPress site URL (HTTPS)</label><input id="wp-url" className="text-input" value={wpUrl} onChange={e=>setWpUrl(e.target.value)} placeholder="https://yournewswebsite.com"/><label className="field-label" htmlFor="wp-user">WordPress username</label><input id="wp-user" className="text-input" autoComplete="username" value={wpUser} onChange={e=>setWpUser(e.target.value)} placeholder="WordPress username"/><label className="field-label" htmlFor="wp-password">Application Password</label><input id="wp-password" className="text-input" type="password" autoComplete="current-password" value={wpPassword} onChange={e=>setWpPassword(e.target.value)} placeholder="Use a revocable Application Password"/><div className="wp-actions"><button className="wp-test" onClick={testWordPress} disabled={wpBusy||wpPublishBusy||!wpUrl||!wpUser||!wpPassword}>{wpBusy?<LoaderCircle size={15} className="spin"/>:<ShieldCheck size={15}/>} Test connection</button><button className="wp-publish" onClick={publishWordPress} disabled={wpBusy||wpPublishBusy||!wpUrl||!wpUser||!wpPassword||!config}>{wpPublishBusy?<LoaderCircle size={15} className="spin"/>:<ArrowRight size={15}/>} Create starter pages</button></div>{wpResult&&<p className={"wp-result "+(wpResult.startsWith("Connected")||wpResult.startsWith("WordPress setup completed")?"ok":"bad")}>{wpResult}</p>}<small className="wp-warning">Use a dedicated WordPress account and a revocable Application Password, not your main account password. This early MVP does not save credentials.</small></div>}
             </section>
