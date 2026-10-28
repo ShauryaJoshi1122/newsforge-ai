@@ -10,7 +10,7 @@ NewsForge AI is an early-stage, template-first news website generator. It is des
 - Live design preview that updates as settings change.
 - Template inspiration notes for Indian news-publishing patterns; these presets are original UI layouts, not bundled third-party WordPress themes.
 - Server-side, validated website configuration generation at POST /api/generate.
-- Export of generated configuration as a JSON file.
+- Export of generated configuration as a JSON file. Export re-generates the configuration from the current form values, so changing the brand, language, color, template or feature toggles before export does not silently download an older configuration.
 - WordPress authentication test at POST /api/wordpress using HTTPS and a revocable WordPress Application Password.
 - Clear UI messaging: generating a configuration is not the same as publishing a website.
 
@@ -53,8 +53,8 @@ Before production multi-tenant use, add authentication and authorization, rate l
 
 ## Roadmap
 
-1. Run a production build and fix any errors.
-2. Add tests for configuration generation and WordPress connection validation.
+1. Add automated tests for configuration generation, current-state export behavior, and WordPress connection validation.
+2. Run and verify the production build and CI checks after each meaningful change.
 3. Build a minimal WordPress plugin/adapter for applying approved settings and creating pages.
 4. Add secure accounts, project persistence, and encrypted credential handling.
 5. Integrate a real hosting provider for new WordPress site provisioning.
