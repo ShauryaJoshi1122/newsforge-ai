@@ -194,3 +194,23 @@ The API limits the brief to 2,000 characters, asks Gemini for JSON rather than e
 ### Scope and next steps
 
 This first AI milestone personalizes the existing supported NewsForge layouts. It does not generate arbitrary React/HTML/CSS, fabricate current news, install WordPress themes, provision hosting, or automatically publish the result. The next milestone should add controlled layout/component variants and regression tests, then authenticated project ownership, per-user quotas/rate limiting, usage tracking, and an explicit publish workflow before opening AI generation to public customers.
+
+
+## Real AI website design generation
+
+The Studio now accepts a natural-language design brief and sends it to Google's Gemini API from the server. Gemini returns a constrained design specification (existing layout choice, brand color, navigation categories, supported feature toggles, and homepage copy). The app validates and sanitizes that specification before rendering it through NewsForge's existing preview. This is real provider-backed AI design customization, not AI-generated arbitrary HTML or a newly provisioned WordPress site.
+
+### Configure Gemini
+
+1. Create an API key in Google AI Studio.
+2. In Vercel → Project → Settings → Environment Variables, add `GEMINI_API_KEY` for the environments you use. Keep it server-side; never prefix it with `NEXT_PUBLIC_`.
+3. Optionally set `GEMINI_MODEL` to a Gemini model available to your API key. The default is `gemini-2.5-flash`.
+4. Redeploy the app, open Studio, enter a design brief, and choose **Generate with AI**. Without a brief, the original template-only generation still works without an AI key.
+
+Example brief: “Build a mobile-first Gujarati regional newsroom for Patan with a trustworthy green-and-white brand, clear Gujarat and local sections, a breaking ticker, and concise Gujarati homepage copy.”
+
+The API limits the brief to 2,000 characters, asks Gemini for JSON rather than executable code, validates the chosen template/color/features, and returns actionable errors when the key is missing or the provider is rate-limiting requests. Provider usage may incur charges or quotas depending on your Google AI Studio account. Do not promise free or unlimited generation.
+
+### Scope and next steps
+
+This first AI milestone personalizes the existing supported NewsForge layouts. It does not generate arbitrary React/HTML/CSS, fabricate current news, install WordPress themes, provision hosting, or automatically publish the result. The next milestone should add controlled layout/component variants and regression tests, then authenticated project ownership, per-user quotas/rate limiting, usage tracking, and an explicit publish workflow before opening AI generation to public customers.
