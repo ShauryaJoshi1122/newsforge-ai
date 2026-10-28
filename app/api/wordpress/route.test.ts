@@ -49,4 +49,16 @@ describe("POST /api/wordpress", () => {
       error: expect.stringContaining("brand name")
     });
   });
+
+  it("returns a client error for malformed JSON", async () => {
+    const response = await POST(new Request("http://localhost/api/wordpress", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "{"
+    }));
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      error: expect.stringContaining("valid JSON")
+    });
+  });
 });
