@@ -42,7 +42,7 @@ export default async function PreviewPage({ searchParams }: { searchParams: Prom
   let site = decodeSite(params.site);
   const requestHeaders = await headers();
   const hostname = (requestHeaders.get("host") || "").split(":")[0].toLowerCase();
-  const previewBaseDomain = process.env.PREVIEW_BASE_DOMAIN?.toLowerCase().replace(/^\\.+|\\.+$/g, "");
+  const previewBaseDomain = process.env.PREVIEW_BASE_DOMAIN?.toLowerCase();
   let projectSlug = params.project;
   if (!projectSlug && previewBaseDomain && hostname.endsWith("." + previewBaseDomain)) {
     projectSlug = hostname.slice(0, -(previewBaseDomain.length + 1));
