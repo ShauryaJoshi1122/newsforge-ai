@@ -13,6 +13,7 @@ export default function Home() {
   const [language,setLanguage] = useState("gu");
   const [templateId,setTemplateId] = useState("regional-connect");
   const [templateQuery,setTemplateQuery] = useState("");
+  const [aiPrompt,setAiPrompt] = useState("");
   const [primaryColor,setPrimaryColor] = useState("#16845b");
   const [enabled,setEnabled] = useState<string[]>(["breaking-ticker","live-tv","ad-slots"]);
   const [categories,setCategories] = useState<string[]>(["Latest","Gujarat","India","World","Politics","Sports"]);
