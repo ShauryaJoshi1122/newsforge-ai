@@ -45,7 +45,7 @@ export async function POST(request: Request, context: { params: Promise<{ slug: 
     const verified = data.verified === true;
     const sql = database();
     await sql`UPDATE newsforge_projects SET custom_domain = ${domain}, domain_verified = ${verified},
-      domain_status = ${verified ? "verified" : "verification-required"} WHERE id = ${project.id}`;
+      domain_status = ${verified ? "verified" : "verification-required"}, expires_at = NULL, published_at = COALESCE(published_at, now()) WHERE id = ${project.id}`;
     return NextResponse.json({
       ok: true, domain, verified,
       dnsInstructions: verified ? [] : (data.verification || []),
