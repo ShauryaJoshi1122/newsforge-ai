@@ -21,7 +21,8 @@ export default function Home() {
   const [wpUrl,setWpUrl] = useState("");
   const [wpUser,setWpUser] = useState("");
   const [wpPassword,setWpPassword] = useState("");
-  const [wpBusy,setWpBusy] = useState(false);\n  const [wpPublishBusy,setWpPublishBusy] = useState(false);
+  const [wpBusy,setWpBusy] = useState(false);
+  const [wpPublishBusy,setWpPublishBusy] = useState(false);
   const [wpResult,setWpResult] = useState("");
   const selected = useMemo(()=>templates.find(t=>t.id===templateId) ?? templates[0],[templateId]);
 
