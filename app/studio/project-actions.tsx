@@ -18,16 +18,6 @@ export default function ProjectActions({ config }: { config: ProjectConfig }) {
   const [message, setMessage] = useState("");
   const [domainDetails, setDomainDetails] = useState("");
 
-  useEffect(() => {
-    try {
-      const savedProject = sessionStorage.getItem("newsforge-current-project");
-      const savedToken = sessionStorage.getItem("newsforge-project-token");
-      if (savedProject && savedToken) {
-        setProject(JSON.parse(savedProject) as Project);
-        setToken(savedToken);
-      }
-    } catch { /* Ignore stale browser session data. */ }
-  }, []);
 
   async function saveProject() {
     setBusy("save"); setMessage(""); setDomainDetails("");
