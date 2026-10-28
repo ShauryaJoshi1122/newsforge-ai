@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       if (categories.length === 12) break;
     }
     const requestedHomepage = body.homepage && typeof body.homepage === "object" ? body.homepage : {};
-    const cleanText = (value: unknown, fallback: string, maxLength: number) => typeof value === "string" ? value.replace(/\\s+/g, " ").trim().slice(0, maxLength) : fallback;
+    const cleanText = (value: unknown, fallback: string, maxLength: number) => typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, maxLength) : fallback;
     const homepageDefaults = language === "gu"
       ? { headline: "ગુજરાત અને દેશના તાજા સમાચાર એક જ જગ્યાએ", description: "તમારી બ્રાન્ડ, તમારી ભાષા અને તમારા વાચકો માટે બનાવેલી ન્યૂઝ વેબસાઇટ.", tickerText: "તાજા સમાચાર માટે તમારી વેબસાઇટ તૈયાર છે" }
       : language === "hi"
