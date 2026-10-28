@@ -35,12 +35,23 @@ export default function Home() {
     } catch(e) { setError(e instanceof Error ? e.message : "Something went wrong."); }
     finally { setGenerating(false); }
   }
-  function downloadConfig() {
-    if (!config) return;
-    const blob = new Blob([JSON.stringify(config,null,2)],{type:"application/json"});
-    const url = URL.createObjectURL(blob); const a = document.createElement("a");
-    a.href=url; a.download=(siteName.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "newsforge-site")+"-config.json";
-    a.click(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  async function downloadConfig() {
+    setError("");
+    try {
+      // Rebuild from the current form state so edits made after generation are never exported stale.
+      const response = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled})});
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Could not refresh the website configuration.");
+      const freshConfig = data.config as Config;
+      setConfig(freshConfig);
+      const blob = new Blob([JSON.stringify(freshConfig,null,2)],{type:"application/json"});
+      const url = URL.createObjectURL(blob); const a = document.createElement("a");
+      a.href=url; a.download=(siteName.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "newsforge-site")+"-config.json";
+      a.click(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setNotice("Exported the latest configuration using your current brand, layout, language and features.");
+    } catch(e) {
+      setError(e instanceof Error ? e.message : "Could not export the configuration.");
+    }
   }
   async function testWordPress() {
     setWpBusy(true); setWpResult(""); setError("");
