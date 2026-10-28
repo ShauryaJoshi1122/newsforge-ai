@@ -92,6 +92,40 @@ export default function Home() {
         <div className="landing-template-note"><Sparkles size={16} /><span>More choices are available in the studio, with searchable layouts and a live preview.</span><Link href="/studio">Explore the library <ArrowRight size={14} /></Link></div>
       </section>
 
+      <section className="landing-inspiration-section" id="inspiration">
+        <div className="landing-section-heading">
+          <div><div className="landing-eyebrow">INDIAN NEWSROOM INSPIRATION</div><h2>Recognisable names.<br /><em>Your own news identity.</em></h2></div>
+          <p>Explore real news publishers for layout inspiration, then create an original design for your own brand. These links are references only — NewsForge is independent and is not affiliated with these publishers.</p>
+        </div>
+        <div className="inspiration-grid">
+          <a className="inspiration-card inspiration-national" href="https://www.ndtv.com/" target="_blank" rel="noopener noreferrer">
+            <span className="inspiration-index">01 / NATIONAL</span><strong>NDTV</strong><span className="inspiration-domain">ndtv.com ↗</span><p>National headlines, live updates and a broad digital newsroom.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
+          </a>
+          <a className="inspiration-card inspiration-local" href="https://bhadko.co.in/" target="_blank" rel="noopener noreferrer">
+            <span className="inspiration-index">02 / REGIONAL</span><strong>Bhadko News Network</strong><span className="inspiration-domain">bhadko.co.in ↗</span><p>Regional publishing and a recognisable local-news brand.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
+          </a>
+          <a className="inspiration-card inspiration-digital" href="https://bindia.co/" target="_blank" rel="noopener noreferrer">
+            <span className="inspiration-index">03 / DIGITAL</span><strong>B India</strong><span className="inspiration-domain">bindia.co ↗</span><p>A digital-first reference for your own publication's identity.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
+          </a>
+          <a className="inspiration-card inspiration-regional" href="https://khabarkitahtak.co.in/" target="_blank" rel="noopener noreferrer">
+            <span className="inspiration-index">04 / REGIONAL</span><strong>Khabar Ki Tahak</strong><span className="inspiration-domain">khabarkitahtak.co.in ↗</span><p>A regional-news reference for clear headlines and quick navigation.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
+          </a>
+          <a className="inspiration-card inspiration-broadcast" href="https://www.tv9gujarati.com/" target="_blank" rel="noopener noreferrer">
+            <span className="inspiration-index">05 / GUJARATI TV</span><strong>TV9 Gujarati</strong><span className="inspiration-domain">tv9gujarati.com ↗</span><p>Broadcast-led regional coverage and a strong breaking-news rhythm.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
+          </a>
+          <a className="inspiration-card inspiration-editorial" href="https://gujarati.abplive.com/" target="_blank" rel="noopener noreferrer">
+            <span className="inspiration-index">06 / GUJARATI DIGITAL</span><strong>ABP Asmita</strong><span className="inspiration-domain">gujarati.abplive.com ↗</span><p>Regional language coverage for a Gujarati-speaking audience.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
+          </a>
+          <a className="inspiration-card inspiration-newspaper" href="https://www.divyabhaskar.co.in/" target="_blank" rel="noopener noreferrer">
+            <span className="inspiration-index">07 / NEWSPAPER</span><strong>Divya Bhaskar</strong><span className="inspiration-domain">divyabhaskar.co.in ↗</span><p>Newspaper-style hierarchy for local, city and state stories.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
+          </a>
+          <a className="inspiration-card inspiration-broadcast" href="https://zeenews.india.com/gujarati" target="_blank" rel="noopener noreferrer">
+            <span className="inspiration-index">08 / GUJARATI NEWS</span><strong>Zee 24 Kalak</strong><span className="inspiration-domain">zeenews.india.com/gujarati ↗</span><p>TV-news inspired presentation for fast-moving updates.</p><b className="inspiration-action">Visit reference <ArrowRight size={14} /></b>
+          </a>
+        </div>
+        <div className="inspiration-footer"><ShieldCheck size={17} /><p><b>Build original, not copied.</b> Reference names are shown for discovery only. NewsForge does not use their logos or claim endorsement; your generated site should use your own name, assets and editorial content.</p><Link href="/studio">Build your own <ArrowRight size={14} /></Link></div>
+      </section>
+
       <section className="landing-how" id="how-it-works">
         <div className="landing-eyebrow">A CLEAR PATH FROM IDEA TO SETUP</div><h2>Three steps to get<br /><em>your newsroom started.</em></h2>
         <div className="landing-steps">{steps.map(step => <article key={step.number}><span>{step.number}</span><div><h3>{step.title}</h3><p>{step.body}</p></div><ChevronRight size={19} /></article>)}</div>
