@@ -61,7 +61,6 @@ export default function Home() {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Connection failed.");
       setWpResult("Connected successfully as " + (data.user?.name || data.user?.slug || wpUser) + ". No content was changed.");
-      setWpPassword("");
     } catch(e) { setWpResult(e instanceof Error ? e.message : "Connection failed."); }
     finally { setWpBusy(false); }
   }
@@ -93,7 +92,7 @@ export default function Home() {
       <div className="sidebar-bottom"><div className="help-card"><div className="help-icon"><CircleHelp size={18}/></div><strong>Need a hand?</strong><p>Build your first news site in a few simple steps.</p><button onClick={()=>document.getElementById("how-it-works")?.scrollIntoView({behavior:"smooth"})}>Quick guide <ArrowRight size={14}/></button></div><div className="profile"><div className="avatar">NF</div><div><strong>NewsForge Studio</strong><span>Starter workspace</span></div><ChevronDown size={16}/></div></div>
     </aside>
     <section className="main-area">
-      <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> <b>Website generator</b></div><div className="top-actions"><span className="status-dot"></span><span className="status-text">All systems ready</span><button className="icon-button" aria-label="Help"><CircleHelp size={18}/></button><div className="avatar small-avatar">NF</div></div></header>
+      <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> <b>Website generator</b></div><div className="top-actions"><span className="status-dot"></span><span className="status-text">Workspace ready</span><button className="icon-button" aria-label="Help"><CircleHelp size={18}/></button><div className="avatar small-avatar">NF</div></div></header>
       <div className="content">
         <div className="page-heading"><div><div className="eyebrow"><Sparkles size={14}/> AI-POWERED WEBSITE FACTORY</div><h1>Your next newsroom starts here.</h1><p>Build a polished, branded news website from a template — without starting from scratch.</p></div><div className="heading-badge"><Zap size={16}/><span>Template-first<br/><b>Fast by design</b></span></div></div>
         <div className="steps"><div className="step current"><span>1</span><div><b>Customize</b><small>Brand & layout</small></div></div><div className="step-line"/><div className={"step "+(config?"current":"")}><span>2</span><div><b>Preview</b><small>Review your site</small></div></div><div className="step-line"/><div className="step"><span>3</span><div><b>Connect</b><small>WordPress setup</small></div></div></div>
@@ -116,7 +115,7 @@ export default function Home() {
             {error&&<div className="notice error">{error}</div>}{notice&&<div className="notice success"><Check size={16}/>{notice}</div>}
           </div>
           <div className="preview-column">
-            <div className="preview-header"><div><span className="live-indicator"/> LIVE DESIGN PREVIEW</div><span className="preview-size"><MonitorSmartphone size={14}/> Responsive layout</span></div>
+            <div className="preview-header"><div><span className="live-indicator"/> LIVE LAYOUT PREVIEW</div><span className="preview-size"><MonitorSmartphone size={14}/> Responsive layout</span></div>
             <div className="browser-frame"><div className="browser-top"><div className="traffic"><i/><i/><i/></div><div className="browser-address"><ShieldCheck size={11}/> preview.newsforge.ai/{siteName.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"your-news"}</div><ExternalLink size={13}/></div>
               <div className={"site-preview template-"+selected.style} style={{"--accent":primaryColor} as React.CSSProperties}>
                 <div className="preview-masthead"><div className="preview-logo"><span className="preview-logo-mark"><Radio size={17}/></span><span>{siteName||"Your News Brand"}<small>{language==="gu"?"તમારા સમાચાર, તમારી ભાષામાં":language==="hi"?"आपकी खबर, आपकी आवाज़":"YOUR NEWS. YOUR VOICE."}</small></span></div><div className="preview-date">LIVE UPDATES <span>●</span></div></div>
@@ -133,7 +132,7 @@ export default function Home() {
             </section>
           </div>
         </div>
-        <section className="how-section" id="how-it-works"><div><span className="eyebrow">SIMPLE BY DESIGN</span><h2>From idea to newsroom, in three steps.</h2></div><div className="how-cards"><article><span>01</span><h3>Choose your style</h3><p>Start with a reusable layout made for news publishers.</p></article><article><span>02</span><h3>Make it yours</h3><p>Set your brand, language, color and key website features.</p></article><article><span>03</span><h3>Prepare to publish</h3><p>Export your configuration now. Real WordPress publishing and hosting automation are next milestones.</p></article></div></section>
+        <section className="how-section" id="how-it-works"><div><span className="eyebrow">SIMPLE BY DESIGN</span><h2>From idea to newsroom, in three steps.</h2></div><div className="how-cards"><article><span>01</span><h3>Choose your style</h3><p>Start with a reusable layout made for news publishers.</p></article><article><span>02</span><h3>Make it yours</h3><p>Set your brand, language, color and key website features.</p></article><article><span>03</span><h3>Prepare to publish</h3><p>Connect WordPress and create starter categories and pages. Hosting automation is a later milestone.</p></article></div></section>
         <footer className="footer"><span>© 2026 NewsForge AI</span><span>Built for Indian and independent newsrooms <span className="footer-heart">●</span></span><span>Early access · MVP</span></footer>
       </div>
     </section>
