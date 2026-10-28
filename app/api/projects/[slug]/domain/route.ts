@@ -25,6 +25,15 @@ export async function POST(request: Request, context: { params: Promise<{ slug: 
     const vercelProjectId = process.env.VERCEL_PROJECT_ID;
     if (!token || !vercelProjectId) return NextResponse.json({ error: "Custom-domain automation is not configured. Add VERCEL_TOKEN and VERCEL_PROJECT_ID in Vercel environment variables." }, { status: 503 });
     const teamQuery = process.env.VERCEL_TEAM_ID ? `?teamId=${encodeURIComponent(process.env.VERCEL_TEAM_ID)}` : "";
+    if (body?.action === "verify") {
+      const verifyResponse = await fetch(`https://api.vercel.com/v9/projects/${encodeURIComponent(vercelProjectId)}/domains/${encodeURIComponent(domain)}${teamQuery}`, {
+        headers: { Authorization: `Bearer ${token}` }, cache: "no-store", signal: AbortSignal.timeout(12000)
+      });
+      const verifyData = await verifyResponse.json().catch(() => ({})) as { verified?: boolean; error?: { message?: string } };
+      if (!verifyResponse.ok) return NextResponse.json({ error: verifyData.error?.message || "Could not verify the domain yet." }, { status: 400 });
+      await database()`UPDATE newsforge_projects SET domain_verified = ${verifyData.verified === true}, domain_status = ${verifyData.verified === true ? "verified" : "verification-required"} WHERE id = ${project.id} AND lower(custom_domain) = ${domain}`;
+      return NextResponse.json({ ok: true, domain, verified: verifyData.verified === true, message: verifyData.verified ? "Domain verified and connected." : "Vercel has not verified the domain yet. Check DNS records in Vercel Settings → Domains, then retry." });
+    }
     const response = await fetch(`https://api.vercel.com/v10/projects/${encodeURIComponent(vercelProjectId)}/domains${teamQuery}`, {
       method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ name: domain }), cache: "no-store", signal: AbortSignal.timeout(12000)
