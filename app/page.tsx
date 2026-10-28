@@ -21,7 +21,7 @@ export default function Home() {
   const [wpUrl,setWpUrl] = useState("");
   const [wpUser,setWpUser] = useState("");
   const [wpPassword,setWpPassword] = useState("");
-  const [wpBusy,setWpBusy] = useState(false);
+  const [wpBusy,setWpBusy] = useState(false);\n  const [wpPublishBusy,setWpPublishBusy] = useState(false);
   const [wpResult,setWpResult] = useState("");
   const selected = useMemo(()=>templates.find(t=>t.id===templateId) ?? templates[0],[templateId]);
 
@@ -63,6 +63,24 @@ export default function Home() {
       setWpPassword("");
     } catch(e) { setWpResult(e instanceof Error ? e.message : "Connection failed."); }
     finally { setWpBusy(false); }
+  }
+  async function publishWordPress() {
+    if (!config) { setWpResult("Generate your website configuration first."); return; }
+    if (!window.confirm("Create missing starter categories and publish About, Contact, and Privacy Policy pages on " + wpUrl + "? Existing pages with the same slugs will be left unchanged.")) return;
+    setWpPublishBusy(true); setWpResult(""); setError("");
+    try {
+      const response = await fetch("/api/wordpress",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"publish",siteUrl:wpUrl,username:wpUser,appPassword:wpPassword,siteName:config.siteName})});
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok && response.status !== 207) throw new Error(data.error || "Could not publish starter content.");
+      const result = data.results;
+      if (!result) throw new Error(data.error || "WordPress returned an unexpected response.");
+      const summary = "WordPress setup " + (data.ok ? "completed" : "partially completed") + ": " +
+        result.categoriesCreated.length + " categories and " + result.pagesCreated.length + " pages created; " +
+        result.categoriesExisting.length + " categories and " + result.pagesExisting.length + " pages already existed.";
+      setWpResult(summary + (data.failures?.length ? " Issues: " + data.failures.join(" | ") : " Review the starter pages before launch."));
+      setWpPassword("");
+    } catch(e) { setWpResult(e instanceof Error ? e.message : "Could not publish starter content."); }
+    finally { setWpPublishBusy(false); }
   }
   return <main className="app-shell">
     <aside className="sidebar">
@@ -109,8 +127,8 @@ export default function Home() {
             </div>
             <div className="preview-footer"><span><span className="tiny-dot"/> Updating as you customize</span><button onClick={generate} disabled={generating}><Sparkles size={14}/> Refresh preview</button></div>
             {config&&<div className="generated-card"><div className="generated-icon"><Check size={19}/></div><div className="generated-copy"><b>Configuration generated</b><span>{config.templateName} · {languageNames[config.language]||config.language}</span><small>This is a setup configuration, not a published WordPress site yet.</small></div><button className="download-button" onClick={downloadConfig}><ArrowDownToLine size={16}/> Export JSON</button></div>}
-            <section className={"wordpress-card "+(wpOpen?"expanded":"")}><div className="wordpress-top"><div className="wp-icon">W</div><div><h3>Connect your WordPress</h3><p>Test access to a real WordPress site. This will not publish anything.</p></div><button className="wp-expand" onClick={()=>setWpOpen(!wpOpen)} aria-label="Toggle WordPress connection"><Plus size={18}/></button></div>
-              {wpOpen&&<div className="wp-form"><label className="field-label" htmlFor="wp-url">WordPress site URL (HTTPS)</label><input id="wp-url" className="text-input" value={wpUrl} onChange={e=>setWpUrl(e.target.value)} placeholder="https://yournewswebsite.com"/><label className="field-label" htmlFor="wp-user">WordPress username</label><input id="wp-user" className="text-input" autoComplete="username" value={wpUser} onChange={e=>setWpUser(e.target.value)} placeholder="WordPress username"/><label className="field-label" htmlFor="wp-password">Application Password</label><input id="wp-password" className="text-input" type="password" autoComplete="current-password" value={wpPassword} onChange={e=>setWpPassword(e.target.value)} placeholder="Use a revocable Application Password"/><button className="wp-test" onClick={testWordPress} disabled={wpBusy||!wpUrl||!wpUser||!wpPassword}>{wpBusy?<LoaderCircle size={15} className="spin"/>:<ShieldCheck size={15}/>} Test connection</button>{wpResult&&<p className={"wp-result "+(wpResult.startsWith("Connected")?"ok":"bad")}>{wpResult}</p>}<small className="wp-warning">Use a dedicated WordPress account and a revocable Application Password, not your main account password. This early MVP does not save credentials.</small></div>}
+            <section className={"wordpress-card "+(wpOpen?"expanded":"")}><div className="wordpress-top"><div className="wp-icon">W</div><div><h3>Connect your WordPress</h3><p>Connect a real site, then create starter categories and pages when you are ready.</p></div><button className="wp-expand" onClick={()=>setWpOpen(!wpOpen)} aria-label="Toggle WordPress connection"><Plus size={18}/></button></div>
+              {wpOpen&&<div className="wp-form"><label className="field-label" htmlFor="wp-url">WordPress site URL (HTTPS)</label><input id="wp-url" className="text-input" value={wpUrl} onChange={e=>setWpUrl(e.target.value)} placeholder="https://yournewswebsite.com"/><label className="field-label" htmlFor="wp-user">WordPress username</label><input id="wp-user" className="text-input" autoComplete="username" value={wpUser} onChange={e=>setWpUser(e.target.value)} placeholder="WordPress username"/><label className="field-label" htmlFor="wp-password">Application Password</label><input id="wp-password" className="text-input" type="password" autoComplete="current-password" value={wpPassword} onChange={e=>setWpPassword(e.target.value)} placeholder="Use a revocable Application Password"/><div className="wp-actions"><button className="wp-test" onClick={testWordPress} disabled={wpBusy||wpPublishBusy||!wpUrl||!wpUser||!wpPassword}>{wpBusy?<LoaderCircle size={15} className="spin"/>:<ShieldCheck size={15}/>} Test connection</button><button className="wp-publish" onClick={publishWordPress} disabled={wpBusy||wpPublishBusy||!wpUrl||!wpUser||!wpPassword||!config}>{wpPublishBusy?<LoaderCircle size={15} className="spin"/>:<ArrowRight size={15}/>} Create starter pages</button></div>{wpResult&&<p className={"wp-result "+(wpResult.startsWith("Connected")||wpResult.startsWith("WordPress setup completed")?"ok":"bad")}>{wpResult}</p>}<small className="wp-warning">Use a dedicated WordPress account and a revocable Application Password, not your main account password. This early MVP does not save credentials.</small></div>}
             </section>
           </div>
         </div>
