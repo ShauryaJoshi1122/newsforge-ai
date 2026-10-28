@@ -8,7 +8,8 @@ const defaultCategories = ["Latest", "Local", "India", "World", "Politics", "Spo
 
 function buildConfig(body: Record<string, unknown>, ai?: Record<string, unknown>) {
   const siteName = typeof body.siteName === "string" ? body.siteName.trim().slice(0, 80) : "";
-  const requestedTemplateId = typeof ai?.templateId === "string" ? ai.templateId : body.templateId;
+  const aiTemplateId = typeof ai?.templateId === "string" && templates.some((item) => item.id === ai.templateId) ? ai.templateId : undefined;
+  const requestedTemplateId = aiTemplateId ?? body.templateId;
   const templateId = typeof requestedTemplateId === "string" ? requestedTemplateId : "";
   const language = ["en", "gu", "hi"].includes(String(body.language)) ? String(body.language) : "en";
   const template = templates.find((item) => item.id === templateId);
