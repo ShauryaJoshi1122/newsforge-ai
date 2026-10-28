@@ -49,6 +49,33 @@ describe("POST /api/generate", () => {
     expect(body.config.categories).toEqual(["Gujarat", "Education News", "A".repeat(24)]);
   });
 
+  it("sanitizes editable homepage copy and applies character limits", async () => {
+    const response = await POST(request({
+      siteName: "Regional Daily", templateId: "regional-connect", language: "en",
+      homepage: {
+        headline: "  Local   headlines  ",
+        description: "  Community   news for everyone  ",
+        tickerText: "  Breaking   update  "
+      }
+    }));
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.config.homepage).toEqual({
+      headline: "Local headlines",
+      description: "Community news for everyone",
+      tickerText: "Breaking update"
+    });
+
+    const longResponse = await POST(request({
+      siteName: "Regional Daily", templateId: "regional-connect",
+      homepage: { headline: "H".repeat(200), description: "D".repeat(300), tickerText: "T".repeat(220) }
+    }));
+    const longBody = await longResponse.json();
+    expect(longBody.config.homepage.headline).toHaveLength(160);
+    expect(longBody.config.homepage.description).toHaveLength(240);
+    expect(longBody.config.homepage.tickerText).toHaveLength(180);
+  });
+
   it("falls back to safe defaults for unsupported language and color", async () => {
     const response = await POST(request({
       siteName: "Regional Daily", language: "xx", templateId: "regional-connect", primaryColor: "red"
