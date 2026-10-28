@@ -70,7 +70,7 @@ export default function Home() {
     const bytes = new TextEncoder().encode(JSON.stringify(value));
     let binary = "";
     bytes.forEach(byte => { binary += String.fromCharCode(byte); });
-    const encoded = btoa(binary).replace(/\\+/g, "-").replace(/\\//g, "_").replace(/=+$/g, "");
+    const encoded = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
     return window.location.origin + "/preview?site=" + encoded;
   }
   function openFullPreview() {
