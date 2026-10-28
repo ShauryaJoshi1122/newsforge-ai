@@ -23,6 +23,7 @@ export default function Home() {
   const [tickerText,setTickerText] = useState("તાજા સમાચાર માટે તમારી વેબસાઇટ તૈયાર છે");
   const [config,setConfig] = useState<Config|null>(null);
   const [generating,setGenerating] = useState(false);
+  const [themeExporting,setThemeExporting] = useState(false);
   const [notice,setNotice] = useState("");
   const [error,setError] = useState("");
   const [wpOpen,setWpOpen] = useState(false);
@@ -68,6 +69,34 @@ export default function Home() {
       setNotice("Exported the latest configuration using your current brand, layout, language and features.");
     } catch(e) {
       setError(e instanceof Error ? e.message : "Could not export the configuration.");
+    }
+  }
+  async function downloadWordPressTheme() {
+    setThemeExporting(true); setError(""); setNotice("");
+    try {
+      // Refresh from the current form so the downloaded theme includes the latest edits.
+      const configResponse = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteName,language,templateId,primaryColor,features:enabled,categories,homepage:{headline:heroHeadline,description:heroDescription,tickerText}})});
+      const configData = await configResponse.json().catch(() => ({}));
+      if (!configResponse.ok) throw new Error(configData.error || "Could not prepare your website configuration.");
+      const freshConfig = configData.config as Config;
+      const response = await fetch("/api/wordpress/theme",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({config:freshConfig})});
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Could not export the WordPress theme.");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = siteName.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") + "-wordpress-theme.zip";
+      a.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setConfig(freshConfig);
+      setNotice("Downloaded an installable WordPress theme ZIP. Test it on a staging site before activating it on production.");
+    } catch(e) {
+      setError(e instanceof Error ? e.message : "Could not export the WordPress theme.");
+    } finally {
+      setThemeExporting(false);
     }
   }
   function previewUrl(value: Config) {
@@ -173,7 +202,7 @@ export default function Home() {
               </div>
             </div>
             <div className="preview-footer"><span><span className="tiny-dot"/> Updating as you customize</span><button onClick={generate} disabled={generating}><Sparkles size={14}/> Refresh preview</button></div>
-            {config&&<div className="generated-card"><div className="generated-icon"><Check size={19}/></div><div className="generated-copy"><b>Configuration generated</b><span>{config.templateName} · {languageNames[config.language]||config.language}</span><small>This is a setup configuration, not a published WordPress site yet.</small></div><div className="generated-actions"><button className="preview-share-button" onClick={openFullPreview}><ExternalLink size={15}/> Full preview</button><button className="preview-share-button secondary" onClick={copyPreviewLink}><Globe2 size={15}/> Copy preview link</button><button className="download-button" onClick={downloadConfig}><ArrowDownToLine size={16}/> Export JSON</button></div></div>}
+            {config&&<div className="generated-card"><div className="generated-icon"><Check size={19}/></div><div className="generated-copy"><b>Configuration generated</b><span>{config.templateName} · {languageNames[config.language]||config.language}</span><small>This is a setup configuration, not a published WordPress site yet.</small></div><div className="generated-actions"><button className="preview-share-button" onClick={openFullPreview}><ExternalLink size={15}/> Full preview</button><button className="preview-share-button secondary" onClick={copyPreviewLink}><Globe2 size={15}/> Copy preview link</button><button className="preview-share-button secondary" onClick={downloadWordPressTheme} disabled={themeExporting}>{themeExporting?<LoaderCircle size={15} className="spin"/>:<ArrowDownToLine size={15}/>} {themeExporting?"Preparing theme…":"Download WordPress theme ZIP"}</button><button className="download-button" onClick={downloadConfig}><ArrowDownToLine size={16}/> Export JSON</button></div></div>}
             {config&&<ProjectActions key={config.generatedAt} config={config}/>}\n            <section className={"wordpress-card "+(wpOpen?"expanded":"")} id="wordpress-connection"><div className="wordpress-top"><div className="wp-icon">W</div><div><h3>Connect your WordPress</h3><p>Connect a real site, then create starter categories and pages when you are ready.</p></div><button className="wp-expand" onClick={()=>setWpOpen(!wpOpen)} aria-label="Toggle WordPress connection"><Plus size={18}/></button></div>
               {wpOpen&&<div className="wp-form"><label className="field-label" htmlFor="wp-url">WordPress site URL (HTTPS)</label><input id="wp-url" className="text-input" value={wpUrl} onChange={e=>setWpUrl(e.target.value)} placeholder="https://yournewswebsite.com"/><label className="field-label" htmlFor="wp-user">WordPress username</label><input id="wp-user" className="text-input" autoComplete="username" value={wpUser} onChange={e=>setWpUser(e.target.value)} placeholder="WordPress username"/><label className="field-label" htmlFor="wp-password">Application Password</label><input id="wp-password" className="text-input" type="password" autoComplete="current-password" value={wpPassword} onChange={e=>setWpPassword(e.target.value)} placeholder="Use a revocable Application Password"/><div className="wp-actions"><button className="wp-test" onClick={testWordPress} disabled={wpBusy||wpPublishBusy||!wpUrl||!wpUser||!wpPassword}>{wpBusy?<LoaderCircle size={15} className="spin"/>:<ShieldCheck size={15}/>} Test connection</button><button className="wp-publish" onClick={publishWordPress} disabled={wpBusy||wpPublishBusy||!wpUrl||!wpUser||!wpPassword||!config}>{wpPublishBusy?<LoaderCircle size={15} className="spin"/>:<ArrowRight size={15}/>} Create starter pages</button></div>{wpResult&&<p className={"wp-result "+(wpResult.startsWith("Connected")||wpResult.startsWith("WordPress setup completed")?"ok":"bad")}>{wpResult}</p>}<small className="wp-warning">Use a dedicated WordPress account and a revocable Application Password, not your main account password. This early MVP does not save credentials.</small></div>}
             </section>
