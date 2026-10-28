@@ -22,7 +22,19 @@ export async function POST(request: Request) {
       categories.push(normalized);
       if (categories.length === 12) break;
     }
-    const config = { version: 1, siteName, language, templateId: template.id, templateName: template.name, branding: { primaryColor, backgroundColor: "#ffffff", textColor: "#15202b" }, features: Array.isArray(body.features) ? body.features.filter((x: unknown) => typeof x === "string" && allowed.includes(x)).slice(0, 4) : ["breaking-ticker"], categories: categories.length ? categories : defaultCategories, pages: ["Home", "About", "Contact", "Privacy Policy"], generatedAt: new Date().toISOString() };
+    const requestedHomepage = body.homepage && typeof body.homepage === "object" ? body.homepage : {};
+    const cleanText = (value: unknown, fallback: string, maxLength: number) => typeof value === "string" ? value.replace(/\\s+/g, " ").trim().slice(0, maxLength) : fallback;
+    const homepageDefaults = language === "gu"
+      ? { headline: "ગુજરાત અને દેશના તાજા સમાચાર એક જ જગ્યાએ", description: "તમારી બ્રાન્ડ, તમારી ભાષા અને તમારા વાચકો માટે બનાવેલી ન્યૂઝ વેબસાઇટ.", tickerText: "તાજા સમાચાર માટે તમારી વેબસાઇટ તૈયાર છે" }
+      : language === "hi"
+        ? { headline: "देश और दुनिया की ताज़ा खबरें, एक ही जगह", description: "आपके ब्रांड और पाठकों के लिए बनाई गई आधुनिक न्यूज़ वेबसाइट।", tickerText: "ताज़ा खबरों के लिए आपकी वेबसाइट तैयार है" }
+        : { headline: "The latest stories that matter to your community", description: "A modern news experience designed around your brand and your readers.", tickerText: "Your breaking news ticker will appear here" };
+    const homepage = {
+      headline: cleanText(requestedHomepage.headline, homepageDefaults.headline, 160) || homepageDefaults.headline,
+      description: cleanText(requestedHomepage.description, homepageDefaults.description, 240) || homepageDefaults.description,
+      tickerText: cleanText(requestedHomepage.tickerText, homepageDefaults.tickerText, 180) || homepageDefaults.tickerText
+    };
+    const config = { version: 1, siteName, language, templateId: template.id, templateName: template.name, branding: { primaryColor, backgroundColor: "#ffffff", textColor: "#15202b" }, features: Array.isArray(body.features) ? body.features.filter((x: unknown) => typeof x === "string" && allowed.includes(x)).slice(0, 4) : ["breaking-ticker"], categories: categories.length ? categories : defaultCategories, homepage, pages: ["Home", "About", "Contact", "Privacy Policy"], generatedAt: new Date().toISOString() };
     return NextResponse.json({ ok: true, config, message: "Website configuration generated. Connect WordPress to publish it to a real site." });
   } catch { return NextResponse.json({ error: "Invalid request body." }, { status: 400 }); }
 }
