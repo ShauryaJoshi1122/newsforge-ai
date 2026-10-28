@@ -64,13 +64,13 @@ export default function ProjectActions({ config }: { config: ProjectConfig }) {
     finally { setBusy(""); }
   }
 
-  async function connectDomain() {
+  async function connectDomain(action: "connect" | "verify" = "connect") {
     if (!project || !token || !domain.trim()) return;
     setBusy("domain"); setMessage(""); setDomainDetails("");
     try {
       const response = await fetch("/api/projects/" + encodeURIComponent(project.slug) + "/domain", {
         method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-        body: JSON.stringify({ domain: domain.trim() })
+        body: JSON.stringify({ domain: domain.trim(), ...(action === "verify" ? { action: "verify" } : {}) })
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Could not connect custom domain.");
@@ -90,7 +90,7 @@ export default function ProjectActions({ config }: { config: ProjectConfig }) {
       <div className="project-url-row"><div><small>YOUR PREVIEW URL</small><a href={project.previewUrl} target="_blank" rel="noreferrer">{project.previewUrl}</a></div><a className="project-open" href={project.previewUrl} target="_blank" rel="noreferrer" aria-label="Open saved preview"><ExternalLink size={16}/></a></div>
       <div className="project-expiry"><Clock3 size={15}/>{project.expiresAt ? "Temporary preview · expires " + new Date(project.expiresAt).toLocaleString() : "Permanent NewsForge hosting · no expiry"}</div>
       {project.expiresAt && <button className="project-primary" onClick={publishPermanent} disabled={!!busy}>{busy === "publish" ? <LoaderCircle size={16} className="spin"/> : <UploadCloud size={16}/>} Publish permanently</button>}
-      <div className="project-domain-form"><label htmlFor="project-domain">Connect your own domain</label><div><input id="project-domain" value={domain} onChange={event => setDomain(event.target.value)} placeholder="news.example.com"/><button onClick={connectDomain} disabled={!!busy || !domain.trim()}>{busy === "domain" ? <LoaderCircle size={15} className="spin"/> : <Globe2 size={15}/>} Connect</button></div><small>Requires Vercel domain API credentials and DNS verification. Your domain provider may need a DNS record.</small></div>
+      <div className="project-domain-form"><label htmlFor="project-domain">Connect your own domain</label><div><input id="project-domain" value={domain} onChange={event => setDomain(event.target.value)} placeholder="news.example.com"/><button onClick={() => connectDomain("connect")} disabled={!!busy || !domain.trim()}>{busy === "domain" ? <LoaderCircle size={15} className="spin"/> : <Globe2 size={15}/>} Connect</button></div><button className="project-verify-domain" onClick={() => connectDomain("verify")} disabled={!!busy || !domain.trim()}>{busy === "domain" ? <LoaderCircle size={14} className="spin"/> : <ShieldCheck size={14}/>} Verify domain after DNS setup</button><small>Requires Vercel domain API credentials and DNS verification. Your domain provider may need a DNS record.</small></div>
     </>}
     {message && <p className={"project-message " + (message.startsWith("Project saved") || message.startsWith("Published") ? "ok" : "info")}>{message.startsWith("Project saved") || message.startsWith("Published") ? <Check size={15}/> : <ShieldCheck size={15}/>} {message}</p>}
     {domainDetails && <p className="project-domain-note">{domainDetails}</p>}
