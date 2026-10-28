@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Check, Clock3, ExternalLink, Globe2, LoaderCircle, ShieldCheck, UploadCloud } from "lucide-react";
 
 type ProjectConfig = {
