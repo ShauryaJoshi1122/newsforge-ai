@@ -33,6 +33,12 @@ npm install
 npm run dev
 ```
 
+Run the automated configuration API tests with:
+
+```bash
+npm test
+```
+
 Open http://localhost:3000.
 
 ## WordPress connection test
@@ -53,7 +59,7 @@ Before production multi-tenant use, add authentication and authorization, rate l
 
 ## Roadmap
 
-1. Add automated tests for configuration generation, current-state export behavior, and WordPress connection validation.
+1. Expand automated coverage to current-state export behavior and WordPress connection validation.
 2. Run and verify the production build and CI checks after each meaningful change.
 3. Build a minimal WordPress plugin/adapter for applying approved settings and creating pages.
 4. Add secure accounts, project persistence, and encrypted credential handling.
