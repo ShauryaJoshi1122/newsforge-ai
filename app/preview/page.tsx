@@ -37,9 +37,25 @@ function slug(value: string) {
   return value.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
 }
 
-export default async function PreviewPage({ searchParams }: { searchParams: Promise<{ site?: string; page?: string }> }) {
+export default async function PreviewPage({ searchParams }: { searchParams: Promise<{ site?: string; page?: string; project?: string; domain?: string }> }) {
   const params = await searchParams;
-  const site = decodeSite(params.site);
+  let site = decodeSite(params.site);
+  const requestHeaders = await headers();
+  const hostname = (requestHeaders.get("host") || "").split(":")[0].toLowerCase();
+  const previewBaseDomain = process.env.PREVIEW_BASE_DOMAIN?.toLowerCase().replace(/^\\.+|\\.+$/g, "");
+  let projectSlug = params.project;
+  if (!projectSlug && previewBaseDomain && hostname.endsWith("." + previewBaseDomain)) {
+    projectSlug = hostname.slice(0, -(previewBaseDomain.length + 1));
+  }
+  const domain = params.domain;
+  try {
+    const stored = projectSlug
+      ? await getProjectBySlug(projectSlug)
+      : domain ? await getProjectByDomain(domain) : null;
+    if (stored) site = decodeSite(Buffer.from(JSON.stringify(stored.config)).toString("base64url"));
+  } catch {
+    // Existing URL-encoded previews remain available when database-backed storage is not configured.
+  }
   if (!site) {
     return <main className="full-preview-error"><div className="full-preview-error-card"><span className="full-preview-kicker">NEWSFORGE AI</span><h1>Preview link unavailable</h1><p>This link is missing its website configuration or it is invalid. Open Studio, generate your configuration, and create a new preview link.</p><Link href="/studio">Return to Studio →</Link></div></main>;
   }
