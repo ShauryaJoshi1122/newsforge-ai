@@ -42,7 +42,7 @@ describe("POST /api/generate", () => {
   it("keeps sanitized custom categories in the generated configuration", async () => {
     const response = await POST(request({
       siteName: "Regional Daily", templateId: "regional-connect",
-      categories: ["  Gujarat  ", "Education News", "", 42, "Education News", "A".repeat(40)]
+      categories: ["  Gujarat  ", "Education News", "", 42, "education news", "A".repeat(40)]
     }));
     expect(response.status).toBe(200);
     const body = await response.json();
